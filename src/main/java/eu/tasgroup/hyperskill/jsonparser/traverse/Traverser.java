@@ -1,6 +1,7 @@
 package eu.tasgroup.hyperskill.jsonparser.traverse;
 
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
+import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +23,7 @@ public class Traverser {
 
 		// se siamo in presenza di un elemento generico
 		Matcher elementWithValueMatcher = elementPattern.matcher(json);
-		if (elementWithValueMatcher.find() ) {
+		if (elementWithValueMatcher.find()) {
 			JSONElement element = new JSONElement();
 			String elementKey = elementWithValueMatcher.group(1);
 			String elementValue = elementWithValueMatcher.group(2);
@@ -37,7 +38,8 @@ public class Traverser {
 			if (elementValue.trim().isEmpty() && remainString.trim().startsWith("{")){
 				traverseBrutto(remainString.replaceFirst("\\{",""), element);
 			} else { // stiamo valutando un elemento foglia (con un solo valore)
-				element.setValue(elementValue);
+				Object convertedValue = JSONUtils.convertValue(elementValue);
+				element.setValue(convertedValue);
 				traverseBrutto(remainString, parentElement);
 			}
 			return;
