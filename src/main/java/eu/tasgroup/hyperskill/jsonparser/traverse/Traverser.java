@@ -12,6 +12,11 @@ public class Traverser {
 	Pattern closingElementPattern =  Pattern.compile("^\\s*\\}\\s*,?((?>}|.|\\r|\\n)*)");
 
 	public JSONElement traverse(String json){
+
+		if (json==null){
+			throw new IllegalArgumentException("JSON string can't be equal to null");
+		}
+
 		JSONElement rootElement = new JSONElement();
 		traverseBrutto(json.replaceFirst("\\{", ""), rootElement);
 		return rootElement;
@@ -21,7 +26,7 @@ public class Traverser {
 		if(json.trim().isEmpty())
 			return;
 
-		// se siamo in presenza di un elemento generico
+
 		Matcher elementWithValueMatcher = elementPattern.matcher(json);
 		if (elementWithValueMatcher.find()) {
 			JSONElement element = new JSONElement();

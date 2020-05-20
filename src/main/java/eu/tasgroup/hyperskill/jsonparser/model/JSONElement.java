@@ -23,6 +23,7 @@ public class JSONElement implements TreeElement {
 		children = new ArrayList<>();
 	}
 
+	@Override
 	public String getKey() {
 		return key;
 	}
@@ -31,6 +32,7 @@ public class JSONElement implements TreeElement {
 		this.key = key;
 	}
 
+	@Override
 	public Object getValue() {
 		return value;
 	}

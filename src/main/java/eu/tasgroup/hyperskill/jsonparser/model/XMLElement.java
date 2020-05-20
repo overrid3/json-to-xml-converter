@@ -12,4 +12,14 @@ public class XMLElement implements TreeElement {
 	public List<TreeElement> getChildren() {
 		return null;
 	}
+
+	@Override
+	public String getKey() {
+		return null;
+	}
+
+	@Override
+	public Object getValue() {
+		return null;
+	}
 }
