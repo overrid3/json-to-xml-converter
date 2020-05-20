@@ -8,13 +8,15 @@ import java.util.regex.Pattern;
 
 public class Traverser {
 
+	public static final String JSON_STRING_CAN_T_BE_NULL = "JSON string can't be null";
+	public static final String INVALID_JSON = "Invalid JSON";
 	Pattern elementPattern =  Pattern.compile("^\\s*\"([@?\\#?\\w\\.]*)\"\\s*:\\s*([\\w|\\.|\\s|-|'|\"]*),?((}?>}?|.|\\r|\\n)+)\\s*");
 	Pattern closingElementPattern =  Pattern.compile("^\\s*\\}\\s*,?((?>}|.|\\r|\\n)*)");
 
 	public JSONElement traverse(String json){
 
 		if (json==null){
-			throw new IllegalArgumentException("JSON string can't be equal to null");
+			throw new IllegalArgumentException(JSON_STRING_CAN_T_BE_NULL);
 		}
 
 		JSONElement rootElement = new JSONElement();
@@ -57,7 +59,7 @@ public class Traverser {
 			return;
 		}
 
-		throw new IllegalArgumentException("Json non valido");
+		throw new IllegalArgumentException(INVALID_JSON);
 	}
 
 

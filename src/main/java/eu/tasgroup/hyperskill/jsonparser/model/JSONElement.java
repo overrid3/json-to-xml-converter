@@ -3,10 +3,10 @@ package eu.tasgroup.hyperskill.jsonparser.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONElement implements TreeElement {
+public class JSONElement implements TreeElement<JSONElement> {
 	private String key;
 	private Object value;
-	private List<TreeElement> children;
+	private List<JSONElement> children;
 
 	@Override
 	public JSONElement getParent() {
@@ -23,7 +23,6 @@ public class JSONElement implements TreeElement {
 		children = new ArrayList<>();
 	}
 
-	@Override
 	public String getKey() {
 		return key;
 	}
@@ -32,7 +31,6 @@ public class JSONElement implements TreeElement {
 		this.key = key;
 	}
 
-	@Override
 	public Object getValue() {
 		return value;
 	}
@@ -42,11 +40,11 @@ public class JSONElement implements TreeElement {
 	}
 
 	@Override
-	public List<TreeElement> getChildren() {
+	public List<JSONElement> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<TreeElement> children) {
+	public void setChildren(List<JSONElement> children) {
 		this.children = children;
 	}
 

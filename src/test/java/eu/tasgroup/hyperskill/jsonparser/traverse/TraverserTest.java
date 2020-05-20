@@ -93,10 +93,9 @@ class TraverserTest {
 	@DisplayName("testing traverse with null JSON")
 	@Test
 	public void traverse3() {
-
 		assertThatThrownBy(() -> sut.traverse(null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("JSON string can't be null");
+				.hasMessage(Traverser.JSON_STRING_CAN_T_BE_NULL);
 	}
 
 	@DisplayName("testing traverse with invalid JSON")
@@ -105,7 +104,7 @@ class TraverserTest {
 
 		assertThatThrownBy(() -> sut.traverse("{\"ciao:123}"))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Json non valido");
+				.hasMessage(Traverser.INVALID_JSON);
 	}
 
 }
