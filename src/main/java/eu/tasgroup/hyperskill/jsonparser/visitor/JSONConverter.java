@@ -2,18 +2,29 @@ package eu.tasgroup.hyperskill.jsonparser.visitor;
 
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
+import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
+
+import java.util.Objects;
 
 public class JSONConverter {
 
-	public XMLElement convert(JSONElement jsonElement){
+    public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
 
-		XMLElement xmlElement = new XMLElement();
-		xmlElement.setTagName(jsonElement.getKey());
-		xmlElement.setText(jsonElement.getValue().toString());
+    public XMLElement convert(JSONElement jsonElement) {
 
-		jsonElement.getChildren().stream().forEach(this::convert);
+        Objects.requireNonNull(jsonElement, JSON_ELEMENT_CAN_T_BE_NULL);
 
-		return xmlElement;
-	}
+        XMLElement xmlElement = new XMLElement();
+        xmlElement.setTagName(jsonElement.getKey());
+
+        if (jsonElement.getChildren().isEmpty()) {
+            xmlElement.setText(jsonElement.getValue().toString());
+        } else {
+            for (JSONElement j: jsonElement.getChildren()){
+                xmlElement.addChild(convert(j));
+            }
+        }
+        return xmlElement;
+    }
 
 }

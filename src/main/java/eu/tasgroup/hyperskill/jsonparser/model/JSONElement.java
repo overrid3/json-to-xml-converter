@@ -8,6 +8,12 @@ public class JSONElement implements TreeElement<JSONElement> {
 	private Object value;
 	private List<JSONElement> children;
 
+	public JSONElement(String key, Object value){
+		this.key=key;
+		this.value=value;
+		this.children = new ArrayList<>();
+	}
+
 	@Override
 	public JSONElement getParent() {
 		return parent;
@@ -49,6 +55,12 @@ public class JSONElement implements TreeElement<JSONElement> {
 	}
 
 	public void addChild(JSONElement element){
+		element.setParent(this);
 		this.children.add(element);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }
