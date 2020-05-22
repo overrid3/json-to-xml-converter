@@ -2,13 +2,13 @@ package eu.tasgroup.hyperskill.jsonparser.visitor;
 
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
-import eu.tasgroup.hyperskill.jsonparser.traverse.Traverser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 class JSONConverterTest {
 
@@ -75,6 +75,63 @@ class JSONConverterTest {
     @Test
     public void convertAttributesAndValue(){
 
+    }
+    
+    @DisplayName("Testing conversion from JSON to XML of a complex element with fake attributes for xml")
+    @Test
+    public void convertTest4() {
+    	//"key" : { "@asdsa" : "asdsad", "#key" : "kkkkk", "asdad": "val" } 
+    	//-> "<key> <asdsa>asdsad</asdsa> <key>kkkkk</key> <asdad>val</asdaad> </key>"
+
+        JSONElement e = new JSONElement("key", null);
+        JSONElement e1 = new JSONElement("@asdsa", "asdsad");
+        JSONElement e2 = new JSONElement("#key", "kkkkk");
+        JSONElement e3 = new JSONElement("asdad", "val");
+
+        e1.setParent(e);
+        e2.setParent(e);
+        e3.setParent(e);
+
+        e.addChild(e1);
+        e.addChild(e2);
+        e.addChild(e3);
+
+        XMLElement xmlE = sut.convert(e);
+
+        assertThat(xmlE)
+        .extracting("tagName", "text", "parent")
+        .containsExactly("key",null,null);
+       
+		assertThat(xmlE.getChildren())
+				.extracting("tagName", "text", "parent")
+				.containsExactly(
+						tuple("asdsa", "asdsad", xmlE),
+						tuple("key", "kkkkk", xmlE),
+						tuple("asdad","val", xmlE));
+
+    }
+    
+    @DisplayName("Testing conversion from JSON to XML of a complex element with fake attributes for xml second type")
+    @Test
+    public void convertTest5() {
+    	//"key" : { "@asdsa" : "asdsad", "#key" : "kkkkk" } 
+    	//-> "<key asdsa="asdsad">kkkkk</key>"
+
+        JSONElement e = new JSONElement("key", null);
+        JSONElement e1 = new JSONElement("@asdsa", "asdsad");
+        JSONElement e2 = new JSONElement("#key", "kkkkk");
+
+        e1.setParent(e);
+        e2.setParent(e);
+
+        e.addChild(e1);
+        e.addChild(e2);
+
+        XMLElement xmlE = sut.convert(e);
+
+        assertThat(xmlE)
+		.extracting("tagName", "text", "attributeName", "attributeValue", "parent")
+		.containsExactly("key", "kkkkk", "asdsa", "asdsad", null);
     }
 
 }
