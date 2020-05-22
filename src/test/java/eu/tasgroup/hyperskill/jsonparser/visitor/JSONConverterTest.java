@@ -2,6 +2,7 @@ package eu.tasgroup.hyperskill.jsonparser.visitor;
 
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -132,6 +133,35 @@ class JSONConverterTest {
         assertThat(xmlE)
 		.extracting("tagName", "text", "attributeName", "attributeValue", "parent")
 		.containsExactly("key", "kkkkk", "asdsa", "asdsad", null);
+    }
+
+    @DisplayName("Testing conversion from JSON to XML of a complex element with fake attributes for xml second type")
+    @Test
+    @Ignore
+    public void convertTest6() {
+        //"key" : { "@asdsa" : "asdsad", "#key" : {"figlioincomodo": 6} }
+        //-> "<key asdsa="asdsad">kkkkk</key>"
+
+        // "key" : { "@asdsa" : "asdsad", "#key" : "kkkkk" }
+
+        JSONElement e = new JSONElement("key", null);
+        JSONElement e1 = new JSONElement("@asdsa", "asdsad");
+        JSONElement e2 = new JSONElement("#key", null);
+        JSONElement e21 = new JSONElement("figlioincomodo", 6);
+
+        e1.setParent(e);
+        e2.setParent(e);
+        e21.setParent(e2);
+
+        e.addChild(e1);
+        e.addChild(e2);
+        e2.addChild(e21);
+
+        XMLElement xmlE = sut.convert(e);
+
+        assertThat(xmlE)
+                .extracting("tagName", "text", "attributeName", "attributeValue", "parent")
+                .containsExactly("key", "kkkkk", "asdsa", "asdsad", null);
     }
 
 }

@@ -53,4 +53,10 @@ public class JSONUtils {
 		throw new InvalidParameterException(String.format(INVALID_JSON_VALUE_MESSAGE, jsonValue));
 	}
 
+	public static String getNormalizedKey(String originalKey){
+		if(Objects.isNull(originalKey))
+				return null;
+		return originalKey.replaceFirst("^[@#]", "");
+	}
+
 }

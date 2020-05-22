@@ -113,4 +113,35 @@ class JSONUtilsTest {
 				.hasMessage(String.format(JSONUtils.INVALID_JSON_VALUE_MESSAGE, "nullz"));
 	}
 
+	@Test
+	public void getNormalizedKey_At_Ok(){
+		String actual = JSONUtils.getNormalizedKey("@asd");
+		assertThat(actual).isEqualTo("asd");
+	}
+	@Test
+	public void getNormalizedKey_Hash_Ok(){
+		String actual = JSONUtils.getNormalizedKey("#asd");
+		assertThat(actual).isEqualTo("asd");
+	}
+	@Test
+	public void getNormalizedKey_NoSpecial_Ok(){
+		String actual = JSONUtils.getNormalizedKey("asd");
+		assertThat(actual).isEqualTo("asd");
+	}
+	@Test
+	public void getNormalizedKey_InnerAt_Ok(){
+		String actual = JSONUtils.getNormalizedKey("asd@qwe");
+		assertThat(actual).isEqualTo("asd@qwe");
+	}
+	@Test
+	public void getNormalizedKey_InnerHash_Ok(){
+		String actual = JSONUtils.getNormalizedKey("asd#qwe");
+		assertThat(actual).isEqualTo("asd#qwe");
+	}
+	@Test
+	public void getNormalizedKey_Null_Ok(){
+		String actual = JSONUtils.getNormalizedKey(null);
+		assertThat(actual).isEqualTo(null);
+	}
+
 }
