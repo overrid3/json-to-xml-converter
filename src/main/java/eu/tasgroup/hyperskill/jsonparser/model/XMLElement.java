@@ -1,7 +1,9 @@
 package eu.tasgroup.hyperskill.jsonparser.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XMLElement implements TreeElement<XMLElement> {
 
@@ -10,28 +12,27 @@ public class XMLElement implements TreeElement<XMLElement> {
 	private List<XMLElement> children;
 	private XMLElement parent;
 	
-	//attributi intanto caso con uno solo
-	private String attributeName;
-	private String attributeValue;
-
-	public String getAttributeName() {
-		return attributeName;
-	}
-
-	public void setAttributeName(String attributeName) {
-		this.attributeName = attributeName;
-	}
-
-	public String getAttributeValue() {
-		return attributeValue;
-	}
-
-	public void setAttributeValue(String attributeValue) {
-		this.attributeValue = attributeValue;
-	}
+	private Map<String, String> attributes;
 
 	public XMLElement(){
 		children= new ArrayList<>();
+		attributes = new LinkedHashMap<>();
+	}
+
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+	
+	public void insertAttributeEntry(String key, String value) {
+		attributes.put(key, value);
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
+	}
+
+	public void setChildren(List<XMLElement> children) {
+		this.children = children;
 	}
 
 	public String getTagName() {

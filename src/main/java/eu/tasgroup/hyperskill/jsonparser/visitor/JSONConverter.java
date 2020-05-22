@@ -24,7 +24,9 @@ public class JSONConverter {
 			return xmlElement;
 		}
 
-
+		//se ha figli guardo i figli tranne se #keypadre
+	//	jsonElement.getChildren().stream().forEach(child -> xmlElement.addChild(convert(child)));
+		
 		boolean atLeastOneNormalChild = jsonElement.getChildren().stream()
 				.anyMatch(jsonChild -> isNormalChild(jsonChild, jsonElement));
 		if(atLeastOneNormalChild) {
@@ -35,12 +37,15 @@ public class JSONConverter {
 		// torna true se tutti i figli sono anormali
 		jsonElement.getChildren().stream().filter(child -> child.getKey().startsWith("@"))
 				.forEach(child -> {
-			xmlElement.setAttributeName(JSONUtils.getNormalizedKey(child.getKey()));
-			xmlElement.setAttributeValue(child.getValue().toString());
+					xmlElement.insertAttributeEntry(JSONUtils.getNormalizedKey(child.getKey()), child.getValue().toString());
 		});
 		jsonElement.getChildren().stream()
 				.filter(child -> (child.getKey().startsWith("#") && Objects.equals(JSONUtils.getNormalizedKey(child.getKey()), jsonElement.getKey()))).forEach(child -> {
-			xmlElement.setText(child.getValue().toString());
+					if(child.getChildren().isEmpty())
+						xmlElement.setText(child.getValue().toString());
+					else {
+						child.getChildren().stream().forEach(childChild -> xmlElement.addChild(convert(childChild)));
+					}
 		});
 
 		return xmlElement;
