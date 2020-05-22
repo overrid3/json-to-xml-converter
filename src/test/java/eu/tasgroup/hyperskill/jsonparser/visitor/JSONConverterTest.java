@@ -72,4 +72,9 @@ class JSONConverterTest {
                 .hasMessage(JSONConverter.JSON_ELEMENT_CAN_T_BE_NULL);
     }
 
+    @Test
+    public void convertAttributesAndValue(){
+
+    }
+
 }

@@ -5,6 +5,7 @@ import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class JSONConverter {
 
@@ -17,13 +18,19 @@ public class JSONConverter {
         XMLElement xmlElement = new XMLElement();
         xmlElement.setTagName(jsonElement.getKey());
 
-        if (jsonElement.getChildren().isEmpty()) {
+        /*
+         * "key" : { "@asdsa" : "asdsad", "#key" : "kkkkk", "asdad": "val" } -> "<key></key>"
+         */
+        // FIXME usare l'Optional per togliere questo if
+        if (!Objects.isNull(jsonElement.getValue())) {
             xmlElement.setText(jsonElement.getValue().toString());
-        } else {
-            for (JSONElement j: jsonElement.getChildren()){
-                xmlElement.addChild(convert(j));
-            }
         }
+
+        // nel caso abbia figli li aggiungo anche all'xml element dopo averli convertiti
+        for (JSONElement j: jsonElement.getChildren()){
+            xmlElement.addChild(convert(j));
+        }
+
         return xmlElement;
     }
 
