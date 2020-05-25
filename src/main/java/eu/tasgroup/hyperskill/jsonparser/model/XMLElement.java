@@ -11,7 +11,6 @@ public class XMLElement implements TreeElement<XMLElement> {
 	private String text; // <child_key1>child_key_value</child_key1>
 	private List<XMLElement> children;
 	private XMLElement parent;
-	
 	private Map<String, String> attributes;
 
 	public XMLElement(){
