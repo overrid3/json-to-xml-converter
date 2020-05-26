@@ -385,6 +385,37 @@ class JSONConverterTest {
         assertThat(e.getChildren().get(0).getAttributes()).isEmpty();
     }
 
-    //@DisplayName("Testing convert")
+    @DisplayName("Testing conversion of JSON objects with null values")
+    @Test
+    public void convertTest13(){
+
+        JSONElement root=new JSONElement("root",null);
+        JSONElement e1 = new JSONElement("inner7", null);
+        JSONElement e2 = new JSONElement("@key1", null);
+        JSONElement e3 = new JSONElement("#inner7", null);
+
+        root.addChild(e1);
+        e1.addChild(e2);
+        e1.addChild(e3);
+
+        XMLElement e=sut.convert(root);
+
+        assertThat(e.getTagName()).isEqualTo("root");
+        assertThat(e.getText()).isNull();
+        assertThat(e.getChildren().size()).isEqualTo(1);
+        assertThat(e.getAttributes()).isEmpty();
+
+        assertThat(e.getChildren().get(0).getTagName()).isEqualTo("inner7");
+        assertThat(e.getChildren().get(0).getText()).isEqualTo("null");
+        assertThat(e.getChildren().get(0).getChildren()).isEmpty();
+        assertThat(e.getChildren().get(0).getAttributes()).containsEntry("key1","null");
+    }
+
+    @DisplayName("Testing conversion of JSON object keys for attributes and values with same name")
+    @Test
+    public void convertTest14() {
+
+
+    }
 
 }
