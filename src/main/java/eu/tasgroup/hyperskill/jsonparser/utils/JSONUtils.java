@@ -1,8 +1,5 @@
 package eu.tasgroup.hyperskill.jsonparser.utils;
 
-import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
-import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
-
 import java.security.InvalidParameterException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -58,18 +55,15 @@ public class JSONUtils {
     }
 
     public static boolean isValidKey(String key) {
+    	
+    	Objects.requireNonNull(key, JSON_STRING_CANNOT_BE_NULL);
 
-        if (key.equals("@")) {
+        if (key.equals("@")) 
             return false;
-        }
-
-        if (key.equals("")) {
+        if (key.equals("")) 
             return false;
-        }
-
-        if (key.equals("#")) {
+        if (key.equals("#")) 
             return false;
-        }
         return true;
     }
 
@@ -79,12 +73,4 @@ public class JSONUtils {
         return originalKey.replaceFirst("^[@#]", "");
     }
 
-    public static boolean noValidChildren(JSONElement jsonElement) {
-
-        return jsonElement.getChildren().stream().noneMatch(child -> isValidKey(child.getKey()));
-    }
-
-    public void addValidChildren(JSONElement jsonElement) {
-
-    }
 }

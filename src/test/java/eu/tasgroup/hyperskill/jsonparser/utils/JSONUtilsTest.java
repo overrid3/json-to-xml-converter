@@ -4,8 +4,6 @@ package eu.tasgroup.hyperskill.jsonparser.utils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.print.Doc;
-
 import java.security.InvalidParameterException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,5 +141,44 @@ class JSONUtilsTest {
 		String actual = JSONUtils.getNormalizedKey(null);
 		assertThat(actual).isEqualTo(null);
 	}
+	
+	@Test
+	@DisplayName("null valid key")
+	public void isValidKey1(){
+		assertThatThrownBy(() -> JSONUtils.isValidKey(null))
+		.isInstanceOf(NullPointerException.class)
+		.hasMessage(JSONUtils.JSON_STRING_CANNOT_BE_NULL);
+
+	}
+	
+	@Test
+	@DisplayName("invalid key (at sign)")
+	public void isValidKey2(){
+		boolean actual = JSONUtils.isValidKey("@");
+		assertThat(actual).isEqualTo(false);
+	}
+	
+	@Test
+	@DisplayName("invalid key (hash)")
+	public void isValidKey3(){
+		boolean actual = JSONUtils.isValidKey("#");
+		assertThat(actual).isEqualTo(false);
+	}
+
+	
+	@Test
+	@DisplayName("invalid key (empty)")
+	public void isValidKey4(){
+		boolean actual = JSONUtils.isValidKey("");
+		assertThat(actual).isEqualTo(false);
+	}
+	
+	@Test
+	@DisplayName("valid key")
+	public void isValidKey5(){
+		boolean actual = JSONUtils.isValidKey("@ciao:mondo");
+		assertThat(actual).isEqualTo(true);
+	}
+
 
 }
