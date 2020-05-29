@@ -1,5 +1,6 @@
 package eu.tasgroup.hyperskill.jsonparser.visitor;
 
+import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter2;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
 
 class JSONConverter2Test {
 

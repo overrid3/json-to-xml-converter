@@ -5,7 +5,8 @@ import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.printer.JSONtoXMLPrinter;
 import eu.tasgroup.hyperskill.jsonparser.traverse.Traverser;
-import eu.tasgroup.hyperskill.jsonparser.visitor.JSONConverter2;
+import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter2;
+import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor2;
 
 import java.io.IOException;
 
@@ -14,7 +15,9 @@ public class DocumentConverter {
     private FileManager fm;
     private Traverser trv;
     private JSONConverter2 jsonConverter;
+    private JSONElementVisitor2 jsonElementVisitor2;
     private JSONtoXMLPrinter printer;
+
 
     public DocumentConverter() {
 
@@ -22,6 +25,7 @@ public class DocumentConverter {
         trv=new Traverser();
         jsonConverter=new JSONConverter2();
         printer=new JSONtoXMLPrinter();
+        jsonElementVisitor2=new JSONElementVisitor2();
     }
 
     public void convert() throws IOException {
@@ -34,7 +38,8 @@ public class DocumentConverter {
 
             XMLElement xmlE=jsonConverter.convert(jsonE);
 
-            printer.printToXMLFormat(xmlE);
+            jsonElementVisitor2.visit(xmlE);
+            //printer.printToXMLFormat(xmlE);
         }
     }
 }

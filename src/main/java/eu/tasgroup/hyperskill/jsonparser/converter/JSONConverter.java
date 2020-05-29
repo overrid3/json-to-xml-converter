@@ -1,4 +1,4 @@
-package eu.tasgroup.hyperskill.jsonparser.visitor;
+package eu.tasgroup.hyperskill.jsonparser.converter;
 
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
