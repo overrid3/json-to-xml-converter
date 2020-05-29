@@ -3,7 +3,10 @@ package eu.tasgroup.hyperskill.jsonparser.printer;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
+
+import static eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor.XMLOBJECT_CANNOT_BE_NULL;
 
 public class JSONtoXMLPrinter {
 
@@ -15,62 +18,52 @@ public class JSONtoXMLPrinter {
         tabCount=0;
     }
 
-    public void printToXMLFormat(XMLElement e) {
+    public void printToXMLFormat(XMLElement e){
 
-        if (e.getTagName() != null) {
+        Objects.requireNonNull(e, XMLOBJECT_CANNOT_BE_NULL);
 
-            printTabs(tabCount);
+        if (e.getTagName()!=null) {
 
-            if (e.getText()==null) {
-                System.out.print("<" + e.getTagName());
-                printAttributes(e);
-                System.out.println(" />");
-            } else if (e.getText().equals("")) {
-                System.out.print("<" + e.getTagName());
-                printAttributes(e);
-                System.out.println(">");
-                s.push(e);
-                tabCount += 1;
-            } else  {
-                System.out.print("<" + e.getTagName());
-                printAttributes(e);
-                System.out.print(">");
-                System.out.print(e.getText());
+            s.push(e);
 
-                s.push(e);
-                tabCount += 1;
+            printTagName(e);
+            printAttributes(e);
+
+            if (e.getText()==null){
+                printNullClosingTag();
             }
-        }
 
-        for (XMLElement child : e.getChildren()) {
-            printToXMLFormat(child);
-        }
+            else {
+                printText(e);
 
-        if (!s.isEmpty()) {
-            System.out.println("</" + s.peek().getTagName() + ">");
-            s.pop();
-            tabCount -= 1;
+                e.getChildren().stream().forEach(child -> printToXMLFormat(child));
+                printNormalClosingTag(e);
+            }
+
         }
 
     }
 
-    private void printTabs(int tabCount) {
-
-        for (int i = 0; i < tabCount; i++) {
-            System.out.print("\t");
-        }
-
+    private void printTagName(XMLElement e) {
+        System.out.print("<"+e.getTagName());
     }
 
     private void printAttributes(XMLElement e) {
-
-        if (!e.getAttributes().isEmpty()) {
-            for (Map.Entry<String,String> entry: e.getAttributes().entrySet()){
-                System.out.print(" "+entry.getKey()+"="+entry.getValue());
-            }
+        if (!e.getAttributes().isEmpty()){
+            e.getAttributes().entrySet().stream().forEach(el -> System.out.println(" " + el.getKey() + "=" + el.getValue()));
         }
-
     }
-}
 
-//NON FUNZIONA BENE SU EMPTY 2 PERCHE' LO VEDE COME ELEMENTO COMPLESSO
+    private void printText(XMLElement e) {
+        System.out.print(e.getText());
+    }
+
+    private void printNullClosingTag() {
+        System.out.print(" />");
+    }
+
+    private void printNormalClosingTag(XMLElement e) {
+        System.out.print("</"+e.getTagName()+">");
+    }
+
+}

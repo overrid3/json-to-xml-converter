@@ -34,7 +34,6 @@ public class DocumentConverter {
     public void convert() throws IOException {
 
         String text=fm.load("firstCompleteExample.json");
-        String pathCreated = FileSystems.getDefault().getPath("D:/GIT/converter/src/test/resources", "file.txt").toString();
         if (text.startsWith("{")) {
 
             JSONElement jsonE=trv.traverse(text);
@@ -43,8 +42,8 @@ public class DocumentConverter {
 
             String s = jsonElementVisitor.createString(xmlE);
             
-            File f = fm.writeOnFile(pathCreated, s);
-            //printer.printToXMLFormat(xmlE);
+            //File f = fm.writeOnFile("C:\\Users\\donatom\\IdeaProjects\\BertucciolisConverter\\src\\main\\java\\eu\\tasgroup\\hyperskill\\jsonparser\\app\\text.txt", s);
+            printer.printToXMLFormat(xmlE);
         }
     }
 }

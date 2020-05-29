@@ -48,7 +48,7 @@ public class JSONElementVisitor {
 	    private void printValue(XMLElement e) {
 
 	        if (e.getChildren().isEmpty()) 
-	        	stringa += e.getText().equals("null") ? "value = " + e.getText()+"\n" : "value = " +"\""  + e.getText() + "\"\n";
+	        	stringa += e.getText()==null ? "value = " + e.getText()+"\n" : "value = " +"\""  + e.getText() + "\"\n";
 	    }
 
 	    private void printAttributes(XMLElement e){

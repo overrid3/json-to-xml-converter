@@ -139,7 +139,7 @@ class JSONElementVisitorTest {
 	public void elementVisitorOneTagNullValueNoAttributesTest() {
 		XMLElement xmlElement = new XMLElement();
 		xmlElement.setTagName("id");
-		xmlElement.setText("null");
+		xmlElement.setText(null);
 		
 		String stringExpected =  "\nElement:\npath = id\nvalue = null\n";
 		String stringVisitor = sut.createString(xmlElement);
