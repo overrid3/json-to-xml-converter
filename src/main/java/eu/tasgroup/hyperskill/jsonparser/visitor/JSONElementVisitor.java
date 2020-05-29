@@ -8,7 +8,7 @@ import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 public class JSONElementVisitor {
 
 	public static String XMLOBJECT_CANNOT_BE_NULL = "XML Object cannot be null";
-	
+
 	String elementToString = "";
 	String path = "";
 
@@ -17,47 +17,40 @@ public class JSONElementVisitor {
 		Objects.requireNonNull(element, XMLOBJECT_CANNOT_BE_NULL);
 
 		if(element.getTagName()==null){
-			for(XMLElement elem: element.getChildren()){
-				elementToString = printElement(elem);
-				path="";
-			}
+			element.getChildren().stream()
+			.forEach(child -> {elementToString = printElement(child); path="";});
+			return elementToString;
 		}
-		else{
-			//path da stampare
-			if(path.isEmpty())
-				path=element.getTagName();
-			else
-				path += ", " + element.getTagName();
-			elementToString += "\nElement:\npath = " + path + "\n";
 
-			//l'elemento ha figli
-			if(!element.getChildren().isEmpty()){
-				//l'elemento ha attributi
-				if(!element.getAttributes().isEmpty())
-					printAttributes(element);
-				for(XMLElement elementSon : element.getChildren()){
-					elementToString = printElement(elementSon);
-					path = path.replaceFirst(", "+elementSon.getTagName(), "");
-				}
-			}
-			else{
-				//stampa valore
-				printValue(element);
-				//stampa attributi
-				if(!element.getAttributes().isEmpty()){
-					printAttributes(element);
-				}
-			}
-		}
+		//path da stampare
+		insertPath(element);
+
+		//valore se non ci sono figli
+		if(element.getChildren().isEmpty())
+			insertValue(element);
+
+		//attributi
+		if(!element.getAttributes().isEmpty())
+			printAttributes(element);
+
+		//ricorsione per i figli
+		element.getChildren().stream()
+		.forEach(child -> {elementToString = printElement(child); path = path.replaceFirst(", "+child.getTagName(), "");});
+
 		return elementToString;
+
 	}
 
-	public void printValue(XMLElement element){
-		if(element.getText().equals("null"))
-			elementToString += "value = "+element.getText()+"\n";
-		else{
-			elementToString += "value = \""+element.getText()+"\"\n";
-		}
+	//path vuoto => aggiungo path
+	//path non vuoto => path = pathPadre, pathFiglio
+	public void insertPath(XMLElement element) {
+		path += path.isEmpty()? element.getTagName() : ", " + element.getTagName();
+		elementToString += "\nElement:\npath = " + path + "\n";
+	}
+
+	public void insertValue(XMLElement element){
+
+		elementToString += !element.getText().equals("null") ? "value = \""+element.getText()+"\"\n" : "value = "+element.getText()+"\n";
 	}
 
 	public void printAttributes(XMLElement element) {
