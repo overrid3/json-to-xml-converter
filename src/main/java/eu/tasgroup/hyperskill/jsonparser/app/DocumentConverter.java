@@ -7,15 +7,18 @@ import eu.tasgroup.hyperskill.jsonparser.printer.JSONtoXMLPrinter;
 import eu.tasgroup.hyperskill.jsonparser.traverse.Traverser;
 import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter2;
 import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor2;
+import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 
 public class DocumentConverter {
 
     private FileManager fm;
     private Traverser trv;
     private JSONConverter2 jsonConverter;
-    private JSONElementVisitor2 jsonElementVisitor2;
+    private JSONElementVisitor jsonElementVisitor;
     private JSONtoXMLPrinter printer;
 
 
@@ -25,20 +28,22 @@ public class DocumentConverter {
         trv=new Traverser();
         jsonConverter=new JSONConverter2();
         printer=new JSONtoXMLPrinter();
-        jsonElementVisitor2=new JSONElementVisitor2();
+        jsonElementVisitor=new JSONElementVisitor();
     }
 
     public void convert() throws IOException {
 
         String text=fm.load("firstCompleteExample.json");
-
+        String pathCreated = FileSystems.getDefault().getPath("D:/GIT/converter/src/test/resources", "file.txt").toString();
         if (text.startsWith("{")) {
 
             JSONElement jsonE=trv.traverse(text);
 
             XMLElement xmlE=jsonConverter.convert(jsonE);
 
-            jsonElementVisitor2.visit(xmlE);
+            String s = jsonElementVisitor.createString(xmlE);
+            
+            File f = fm.writeOnFile(pathCreated, s);
             //printer.printToXMLFormat(xmlE);
         }
     }
