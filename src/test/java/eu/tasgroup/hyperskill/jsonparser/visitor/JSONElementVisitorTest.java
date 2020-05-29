@@ -16,7 +16,7 @@ class JSONElementVisitorTest {
 	@DisplayName("visit null element")
 	public void xmlElementNullTest(){
 
-		assertThatThrownBy(() -> sut.printElement(null))
+		assertThatThrownBy(() -> sut.createString(null))
 		.isInstanceOf(NullPointerException.class)
 		.hasMessage(JSONElementVisitor.XMLOBJECT_CANNOT_BE_NULL);
 
@@ -30,7 +30,7 @@ class JSONElementVisitorTest {
 		xmlElement.setText("");
 	
 		String stringExpected =  "\nElement:\npath = id\nvalue = \"\"\n";
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -46,7 +46,7 @@ class JSONElementVisitorTest {
 		String stringExpected =  "\nElement:\npath = id" 
 				+ "\nvalue = \"\"\n" 
 				+ "attributes:\nregion = \"Russia\"\n"; 		
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -64,7 +64,7 @@ class JSONElementVisitorTest {
 				+ "\nvalue = \"\"\n" 
 				+ "attributes:\nregion = \"Russia\"\n"
 				+ "region1 = \"Russia1\"\n";
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -77,7 +77,7 @@ class JSONElementVisitorTest {
 		xmlElement.setText("6753322");
 		
 		String stringExpected =  "\nElement:\npath = id\nvalue = \"6753322\"\n";
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -93,7 +93,7 @@ class JSONElementVisitorTest {
 		String stringExpected =  "\nElement:\npath = id" 
 				+ "\nvalue = \"6753322\"\n" 
 				+ "attributes:\nregion = \"Russia\"\n"; 		
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -111,7 +111,7 @@ class JSONElementVisitorTest {
 		String stringExpected =  "\nElement:\npath = id" 
 				+ "\nvalue = \"6753322\"\n" 
 				+ "attributes:\nregion = \"Russia\"\n"; 		
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -129,7 +129,7 @@ class JSONElementVisitorTest {
 				+ "\nvalue = \"123\"\n" 
 				+ "attributes:\nregion = \"Russia\"\n"
 				+ "region1 = \"Russia1\"\n";
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -142,7 +142,7 @@ class JSONElementVisitorTest {
 		xmlElement.setText("null");
 		
 		String stringExpected =  "\nElement:\npath = id\nvalue = null\n";
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -161,7 +161,7 @@ class JSONElementVisitorTest {
 		String stringValue = "\nvalue = \"to_example@gmail.com\"\n";
 
 		String stringExpected = stringPath + stringValue;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -182,7 +182,7 @@ class JSONElementVisitorTest {
 		String stringAttributes = "attributes:\nregion = \"Russia\"\n";
 
 		String stringExpected = stringPath + stringValue + stringAttributes;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -204,7 +204,7 @@ class JSONElementVisitorTest {
 		String stringAttributes = "attributes:\nregion = \"Russia\"\nregion1 = \"Russia1\"\n";
 
 		String stringExpected = stringPath + stringValue + stringAttributes;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -226,7 +226,7 @@ class JSONElementVisitorTest {
 		String stringValue = "\nvalue = \"to_example@gmail.com\"\n";
 
 		String stringExpected = stringPathFather + attributeFather + stringPathSon + stringValue;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -249,7 +249,7 @@ class JSONElementVisitorTest {
 		String stringValue = "\nvalue = \"to_example@gmail.com\"\n";
 
 		String stringExpected = stringPathFather + attributeFather + stringPathSon + stringValue;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
@@ -273,8 +273,36 @@ class JSONElementVisitorTest {
 		String attributeSon = "attributes:\nregion1 = \"Russia1\"\n";
 
 		String stringExpected = stringPathFather + attributeFather + stringPathSon + stringValue + attributeSon;
-		String stringVisitor = sut.printElement(xmlElement);
+		String stringVisitor = sut.createString(xmlElement);
 
 		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
 	}
+	
+	@Test
+	@DisplayName("print innested tags with father with two children")
+	public void elementVisitorTagFatherAndChildrenTest() {
+		XMLElement xmlElementChild1 = new XMLElement();
+		xmlElementChild1.setTagName("to");
+		xmlElementChild1.setText("to_example@gmail.com");
+		XMLElement xmlElementChild2 = new XMLElement();
+		xmlElementChild2.setTagName("to1");
+		xmlElementChild2.setText("to_example@gmail");
+		
+		XMLElement xmlElement = new XMLElement();
+		xmlElement.setTagName("email");
+		xmlElement.addChild(xmlElementChild1);
+		xmlElement.addChild(xmlElementChild2);
+		
+		String stringPathFather = "\nElement:\npath = email\n";
+		String stringPathSon1 = "\nElement:\npath = email, to";
+		String stringValue1 = "\nvalue = \"to_example@gmail.com\"\n";
+		String stringPathSon2 = "\nElement:\npath = email, to1";
+		String stringValue2 = "\nvalue = \"to_example@gmail\"\n";
+
+		String stringExpected = stringPathFather + stringPathSon1 + stringValue1 + stringPathSon2 + stringValue2;
+		String stringVisitor = sut.createString(xmlElement);
+
+		assertThat(stringVisitor).isEqualToNormalizingNewlines(stringExpected);
+	}
+
 }

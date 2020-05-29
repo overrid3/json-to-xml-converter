@@ -1,63 +1,64 @@
 package eu.tasgroup.hyperskill.jsonparser.visitor;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.Stack;
 
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 
 public class JSONElementVisitor {
 
 	public static String XMLOBJECT_CANNOT_BE_NULL = "XML Object cannot be null";
+	    Stack<XMLElement> path;
+	    String stringa = "";
+	    public JSONElementVisitor(){
+	        path =new Stack<>();
+	    }
 
-	String elementToString = "";
-	String path = "";
+	    public String  createString (XMLElement e) {
+	    	visit(e);
+	    	return stringa;
+	    }
+	    public void visit(XMLElement e) {
+	    	
+	    	Objects.requireNonNull(e, XMLOBJECT_CANNOT_BE_NULL);
 
-	public String printElement(XMLElement element){
+	        if (e.getTagName()!=null) {
 
-		Objects.requireNonNull(element, XMLOBJECT_CANNOT_BE_NULL);
+	            path.push(e);
 
-		if(element.getTagName()==null){
-			element.getChildren().stream()
-			.forEach(child -> {elementToString = printElement(child); path="";});
-			return elementToString;
-		}
+	            printPath(path);
+	            printValue(e);
+	            printAttributes(e);
+	        }
 
-		//path da stampare
-		insertPath(element);
+	        e.getChildren().stream().forEach(child -> visit(child));
 
-		//valore se non ci sono figli
-		if(element.getChildren().isEmpty())
-			insertValue(element);
+	        if (!path.isEmpty()) {
+	            path.pop();
+	        }
+	    }
 
-		//attributi
-		if(!element.getAttributes().isEmpty())
-			printAttributes(element);
+	    private void printPath(Stack<XMLElement> path) {
 
-		//ricorsione per i figli
-		element.getChildren().stream()
-		.forEach(child -> {elementToString = printElement(child); path = path.replaceFirst(", "+child.getTagName(), "");});
+	    	stringa += "\nElement:\npath = ";
+	        path.stream().filter(element -> path.indexOf(element)!=(path.size()-1)).forEach(el -> stringa += el.getTagName() + ", ");
+	        stringa+= path.peek().getTagName() + "\n";
+	    }
 
-		return elementToString;
+	    private void printValue(XMLElement e) {
 
+	        if (e.getChildren().isEmpty()) 
+	        	stringa += e.getText().equals("null") ? "value = " + e.getText()+"\n" : "value = " +"\""  + e.getText() + "\"\n";
+	    }
+
+	    private void printAttributes(XMLElement e){
+
+	        if (!e.getAttributes().isEmpty()){
+	            stringa += "attributes:\n";
+	            e.getAttributes().entrySet().stream().forEach(entry -> stringa += (entry.getKey() + " = " + "\""+entry.getValue()+"\"\n"));
+	        }
+	    }
 	}
 
-	//path vuoto => aggiungo path
-	//path non vuoto => path = pathPadre, pathFiglio
-	public void insertPath(XMLElement element) {
-		path += path.isEmpty()? element.getTagName() : ", " + element.getTagName();
-		elementToString += "\nElement:\npath = " + path + "\n";
-	}
 
-	public void insertValue(XMLElement element){
 
-		elementToString += !element.getText().equals("null") ? "value = \""+element.getText()+"\"\n" : "value = "+element.getText()+"\n";
-	}
-
-	public void printAttributes(XMLElement element) {
-		elementToString += "attributes:\n";
-		for(Map.Entry<String, String> entry : element.getAttributes().entrySet()) {
-			elementToString += entry.getKey()  + " = \"" + entry.getValue() + "\"\n";
-		}
-	}
-
-}
