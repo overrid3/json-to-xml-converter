@@ -7,65 +7,72 @@ import java.util.Map;
 
 public class XMLElement implements TreeElement<XMLElement> {
 
-	private String tagName; // <key></key>
-	private String text; // <child_key1>child_key_value</child_key1>
-	private List<XMLElement> children;
-	private XMLElement parent;
-	private Map<String, String> attributes;
+    private String tagName;
+    private String text;
+    private List<XMLElement> children;
+    private XMLElement parent;
+    private Map<String, String> attributes;
 
-	public XMLElement(){
-		children= new ArrayList<>();
-		attributes = new LinkedHashMap<>();
-	}
+    public XMLElement() {
+        children = new ArrayList<>();
+        attributes = new LinkedHashMap<>();
+        this.text = "";
+    }
 
-	public Map<String, String> getAttributes() {
-		return attributes;
-	}
-	
-	public void insertAttributeEntry(String key, String value) {
-		attributes.put(key, value);
-	}
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
 
-	public void setAttributes(Map<String, String> attributes) {
-		this.attributes = attributes;
-	}
+    public void insertAttributeEntry(String key, String value) {
+        attributes.put(key, value);
+    }
 
-	public void setChildren(List<XMLElement> children) {
-		this.children = children;
-	}
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
 
-	public String getTagName() {
-		return tagName;
-	}
+    public void setChildren(List<XMLElement> children) {
+        this.children = children;
+    }
 
-	public void setTagName(String tagName) {
-		this.tagName = tagName;
-	}
+    public String getTagName() {
+        return tagName;
+    }
 
-	public String getText() {
-		return text;
-	}
+    public void setTagName(String tagName) {
+        this.tagName = tagName;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public void setParent(XMLElement e){
-		this.parent=e;
-	}
+    public void setText(Object text) {
 
-	public void addChild(XMLElement e){
-		e.setParent(this);
-		children.add(e);
-	}
+        if (text == null) {
+            this.text = null;
+        } else {
+            this.text = text.toString();
+        }
 
-	@Override
-	public XMLElement getParent() {
-		return parent;
-	}
+    }
 
-	@Override
-	public List<XMLElement> getChildren() {
-		return children;
-	}
+    public void setParent(XMLElement e) {
+        this.parent = e;
+    }
+
+    public void addChild(XMLElement e) {
+        e.setParent(this);
+        children.add(e);
+    }
+
+    @Override
+    public XMLElement getParent() {
+        return parent;
+    }
+
+    @Override
+    public List<XMLElement> getChildren() {
+        return children;
+    }
 }

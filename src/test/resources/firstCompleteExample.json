@@ -1,0 +1,16 @@
+{
+  "transaction": {
+    "id": "6753322",
+    "number": {
+      "@region": "Russia",
+      "#number": "8-900-000-00-00"
+    },
+    "amount": "ciao"
+  }
+}
+
+/*<transaction>
+<id>6753322</id>
+<number region="Russia">8-900-000-00-00</number>
+<amount />
+</transaction>*/

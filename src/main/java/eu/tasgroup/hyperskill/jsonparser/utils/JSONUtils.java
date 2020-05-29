@@ -13,6 +13,8 @@ public class JSONUtils {
 
     public static final String JSON_STRING_CANNOT_BE_NULL = "Json string cannot be null";
     public static final String INVALID_JSON_VALUE_MESSAGE = "String '%s' passed as parameter is not a valid Json value";
+
+    //PATTERN DA RISPETTARE PER IL SET TEXT DEL FUTURO ELEMENTO XML
     private static Pattern stringPattern = Pattern.compile("^\"(.*)\"$");
     private static Pattern integerPattern = Pattern.compile("^\\d+$");
     private static Pattern doublePattern = Pattern.compile("^\\d+\\.\\d+$");
@@ -86,10 +88,6 @@ public class JSONUtils {
         List<JSONElement> l = jsonElement.getChildren().stream().filter(child -> child.getKey().startsWith("#")).collect(Collectors.toList());
 
         return l.size() == 1 && JSONUtils.getNormalizedKey(l.get(0).getKey()).equals(jsonElement.getKey());
-
-        /*return jsonElement.getChildren().size() == 1
-                && jsonElement.getChildren().get(0).getKey().startsWith("#")
-                && getNormalizedKey(jsonElement.getChildren().get(0).getKey()).equals(jsonElement.getKey());*/
     }
 
     public static boolean hasChildWithoutSpecialCharacter(JSONElement jsonElement) {
@@ -98,11 +96,17 @@ public class JSONUtils {
                 .anyMatch(jsonChild -> !jsonChild.getKey().startsWith("@") && !jsonChild.getKey().startsWith("#"));
     }
 
-    public static boolean hasEmptyKey(JSONElement jsonElement) {
-        return jsonElement.getChildren().stream().anyMatch(child -> child.getKey().equals("#") || child.getKey().equals("@"));
+    //DUBBIO SU CICLARE DIRETTAMENTE QUI O PASSARE UNA LISTA DI VALORI ALLA CLASSE, MAGARI VEDO DOPO...
+    public static boolean hasEmptyOrIllegalKey(JSONElement jsonElement) {
+        return jsonElement.getChildren().stream().anyMatch(child ->illegalInitialAndOnlyCharacter(child.getKey()));
     }
 
-    public static boolean hasChildlessChildren(JSONElement e) {
+    public static boolean hasNotEmptyChildren(JSONElement e) {
         return e.getChildren().stream().anyMatch(child -> !hasNoChildren(child));
     }
+
+    public static boolean illegalInitialAndOnlyCharacter(String key) {
+        return key.equals("@") || key.equals("#") || key.isEmpty(); //TENIAMO L'ISEMPTY() PER SALVARE L'OGGETTO XML CON KEY VUOTA O NO?
+    }
+
 }

@@ -16,76 +16,66 @@ public class JSONConverter2 {
 
         XMLElement xmlElement = new XMLElement();
 
-
         xmlElement.setTagName(JSONUtils.getNormalizedKey(jsonElement.getKey())); //SETTO TAG NAME ---> L'HO MESSO QUI PERCHE' LO FA SEMPRE!!!!!
 
         if (JSONUtils.hasNoChildren(jsonElement)) {
-            xmlElement.setText(jsonElement.getValue().toString());
+            xmlElement.setText(jsonElement.getValue());
             return xmlElement;
         } else if (isCorretlyFormattedXMLElement(jsonElement)) {
             checkForText(xmlElement, jsonElement); //CONTROLLO SUL TEXT
             checkForAttributesToInsert(xmlElement, jsonElement); //CONTROLLO SUGLI ATTRIBUTI (VIENE ESEGUITO ANCHE SE NON CI SONO
         } else {
-
-            Set<JSONElement> set=checkForDuplicates(jsonElement);
-            jsonElement.getChildren().removeAll(set); //RIMUOVE GLI EVENTUALI DUPLICATI
-
-            jsonElement.getChildren().stream().filter(child -> !illegalInitialCharacter(child.getKey())).forEach(child -> xmlElement.addChild(convert(child)));
-            if (xmlElement.getChildren().isEmpty()) {
-                xmlElement.setText("");
+            Set<JSONElement> set = checkForDuplicates(jsonElement);
+            if (!set.isEmpty()) {
+                jsonElement.getChildren().removeAll(set); //RIMUOVE GLI EVENTUALI DUPLICATI
             }
+
+            jsonElement.getChildren().stream()
+                    .filter(child -> !JSONUtils.illegalInitialAndOnlyCharacter(child.getKey()))
+                    .forEach(child -> xmlElement.addChild(convert(child)));
         }
         return xmlElement;
     }
 
+    //CONTROLLO SE E' EFFETTIVAMENTE E' UN ELEMENTO JSON "CORRETTAMENTE FORMATTATO", OVVERO RISPETTA LA STRUTTURA xyz:{@attr:"attr",#xyz:hur}
     private boolean isCorretlyFormattedXMLElement(JSONElement e) {
         return JSONUtils.hasExactlyOneChildWithHashKey(e)
                 && !JSONUtils.hasChildWithoutSpecialCharacter(e)
-                && !JSONUtils.hasEmptyKey(e)
-                && !JSONUtils.hasChildlessChildren(e);
+                && !JSONUtils.hasEmptyOrIllegalKey(e)
+                && !JSONUtils.hasNotEmptyChildren(e);
     }
 
+    //METODO PER VEDERE SE L'ELEMENTO CON CHIAVE #KEY NON HA VALORE NULLO
     private void checkForText(XMLElement xe, JSONElement je) {
 
         Optional<JSONElement> optional = je.getChildren().stream().filter(child -> child.getKey().startsWith("#")).findFirst();
 
-        if (JSONUtils.hasNoChildren(optional.get()) && optional.get().getValue() != null) {
+        if (optional.get().getValue() != null) {
             xe.setText(optional.get().getValue().toString());
         }
     }
 
-    private String setValueXML(JSONElement e) {
-
-        Optional<Object> nullableValue = Optional.ofNullable(e.getValue());
-        return nullableValue.isPresent() ? e.getValue().toString() : "null";
-    }
-
-
     private void checkForAttributesToInsert(XMLElement xmlElement, JSONElement jsonElement) { //VIENE ESEGUITO ANCHE SE I FIGLI CON LA CHIOCCIOLA NON CI SONO
         jsonElement.getChildren().stream()
                 .filter(child -> child.getKey().startsWith("@"))
-                .forEach(child -> xmlElement.insertAttributeEntry(JSONUtils.getNormalizedKey(child.getKey()), setAttributesValueToXML(child)));
+                .forEach(child -> xmlElement.insertAttributeEntry(JSONUtils.getNormalizedKey(child.getKey()), setAttributeValueToXML(child)));
     }
 
-    private String setAttributesValueToXML(JSONElement e) {
-
+    //SE IL VALORE DELL'ATTRIBUTO E' NULL, ALLORA ASSEGNA COME VALORE DELL'ATTRIBUTO UNA STRINGA VUOTA
+    private String setAttributeValueToXML(JSONElement e) {
         Optional<Object> nullableValue = Optional.ofNullable(e.getValue());
         return nullableValue.isPresent() ? e.getValue().toString() : "";
     }
 
-    private boolean illegalInitialCharacter(String key) {
-        return key.equals("@") || key.equals("#") || key.isEmpty(); //TENIAMO L'ISEMPTY() PER SALVARE L'OGGETTO XML O NO?
-    }
-
+    //CONTROLLO TRA CHIAVI CON LO STESSO VALORE (TRA NORMALIZZATE E NORMALI)
     private Set<JSONElement> checkForDuplicates(JSONElement jsonElement) {
 
-        Set<JSONElement> set = new HashSet<>(); //evito eventuali duplicati
+        Set<JSONElement> set = new HashSet<>();
 
-        jsonElement.getChildren().stream().filter(el -> (el.getKey().startsWith("@") || el.getKey().startsWith("#")) && el.getKey().length() > 1)
+        jsonElement.getChildren().stream().filter(el -> (el.getKey().startsWith("@") || el.getKey().startsWith("#")))
                 .forEach(el -> {
                     for (JSONElement j : jsonElement.getChildren()) {
                         if (JSONUtils.getNormalizedKey(el.getKey()).equals(j.getKey())) {
-                            //AGGIUNGILO ALLA LISTA L DICHIARATA IN QUESTO METODO
                             set.add(el);
                         }
                     }

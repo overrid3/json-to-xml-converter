@@ -82,13 +82,13 @@ class JSONConverter2Test {
         assertThat(e.getText()).isNull();
         assertThat(e.getAttributes()).isEmpty();
         assertThat(e.getChildren())
-        .extracting("tagName","text","parent")
-        .containsExactly(tuple("key",null,e),
-                tuple("kao","hur",e));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("key", null, e),
+                        tuple("kao", "hur", e));
         assertThat(e.getChildren().get(0).getChildren())
-                .extracting("tagName","text","parent")
-                .containsExactly(tuple("e1","orgoda",e.getChildren().get(0)),
-                        tuple("e2","mae",e.getChildren().get(0)));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("e1", "orgoda", e.getChildren().get(0)),
+                        tuple("e2", "mae", e.getChildren().get(0)));
     }
 
     @DisplayName("Testing conversion of nested JSON objects")
@@ -292,31 +292,31 @@ class JSONConverter2Test {
                     "inner12": "notnull"
         }*/
 
-        JSONElement e1=new JSONElement("inner12",null);
-        JSONElement e2=new JSONElement("@somekey","attrvalue");
-        JSONElement e3=new JSONElement("#inner12",null);
-        JSONElement e4=new JSONElement("somekey","keyvalue");
-        JSONElement e5=new JSONElement("inner12","notnull");
+        JSONElement e1 = new JSONElement("inner12", null);
+        JSONElement e2 = new JSONElement("@somekey", "attrvalue");
+        JSONElement e3 = new JSONElement("#inner12", null);
+        JSONElement e4 = new JSONElement("somekey", "keyvalue");
+        JSONElement e5 = new JSONElement("inner12", "notnull");
 
         e1.addChild(e2);
         e1.addChild(e3);
         e1.addChild(e4);
         e1.addChild(e5);
 
-        XMLElement xmlE=sut.convert(e1);
+        XMLElement xmlE = sut.convert(e1);
 
         assertThat(xmlE.getTagName()).isEqualTo("inner12");
         assertThat(xmlE.getText()).isNull();
         assertThat(xmlE.getAttributes()).isEmpty();
         assertThat(xmlE.getChildren())
-                .extracting("tagName","text","parent")
-                .containsExactly(tuple("somekey","keyvalue",xmlE),
-                        tuple("inner12","notnull",xmlE));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("somekey", "keyvalue", xmlE),
+                        tuple("inner12", "notnull", xmlE));
     }
 
     @DisplayName("Conversion test of a JSON element with complex #key and @key elements")
     @Test
-    public void convertTest12(){
+    public void convertTest12() {
 
         /*"inner13": {
             "@invalid_attr": {
@@ -327,11 +327,11 @@ class JSONConverter2Test {
             }
         }*/
 
-        JSONElement e1=new JSONElement("inner13",null);
-        JSONElement e2=new JSONElement("@invalid_attr",null);
-        JSONElement e3=new JSONElement("some_key","some value");
-        JSONElement e4=new JSONElement("#inner13",null);
-        JSONElement e5=new JSONElement("key","value");
+        JSONElement e1 = new JSONElement("inner13", null);
+        JSONElement e2 = new JSONElement("@invalid_attr", null);
+        JSONElement e3 = new JSONElement("some_key", "some value");
+        JSONElement e4 = new JSONElement("#inner13", null);
+        JSONElement e5 = new JSONElement("key", "value");
 
         e1.addChild(e2);
         e1.addChild(e4);
@@ -340,21 +340,21 @@ class JSONConverter2Test {
 
         e4.addChild(e5);
 
-        XMLElement e=sut.convert(e1);
+        XMLElement e = sut.convert(e1);
 
         assertThat(e.getTagName()).isEqualTo("inner13");
         assertThat(e.getText()).isNull();
         assertThat(e.getAttributes()).isEmpty();
         assertThat(e.getChildren())
-                .extracting("tagName","text","parent")
-                .containsExactly(tuple("invalid_attr",null,e),
-                        tuple("inner13",null,e));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("invalid_attr", null, e),
+                        tuple("inner13", null, e));
         assertThat(e.getChildren().get(0).getChildren())
-                .extracting("tagName","text","parent")
-                .containsExactly(tuple("some_key","some value",e.getChildren().get(0)));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("some_key", "some value", e.getChildren().get(0)));
         assertThat(e.getChildren().get(1).getChildren())
-                .extracting("tagName","text","parent")
-                .containsExactly(tuple("key","value",e.getChildren().get(1)));
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("key", "value", e.getChildren().get(1)));
     }
 
     @DisplayName("Conversion test of a JSON object with empty key")
@@ -366,6 +366,41 @@ class JSONConverter2Test {
              "secret": "this won't be converted"
         }*/
 
+    }
+
+    @DisplayName("Conversion test of a large JSON object")
+    @Test
+    public void convertTest14() {
+
+        //may:{"@march":"april","#may":{"ciao":"ciao","ciao1":"ciao1"},"maestro":"sniff"}
+
+        JSONElement e1 = new JSONElement("may", null);
+        JSONElement e2 = new JSONElement("@march", "april");
+        JSONElement e3 = new JSONElement("#may", null);
+        JSONElement e4 = new JSONElement("ciao", "ciao");
+        JSONElement e5 = new JSONElement("ciao1", "ciao1");
+        JSONElement e6 = new JSONElement("maestro", "sniff");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+        e1.addChild(e6);
+        e3.addChild(e4);
+        e3.addChild(e5);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("may");
+        assertThat(e.getText()).isNull();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("march", "april", e),
+                        tuple("may", null, e),
+                        tuple("maestro", "sniff", e));
+        assertThat(e.getChildren().get(1).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("ciao", "ciao", e.getChildren().get(1)),
+                        tuple("ciao1", "ciao1", e.getChildren().get(1)));
     }
 
 }
