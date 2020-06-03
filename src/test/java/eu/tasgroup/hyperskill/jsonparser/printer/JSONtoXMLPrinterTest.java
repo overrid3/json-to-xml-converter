@@ -13,6 +13,31 @@ class JSONtoXMLPrinterTest {
 	JSONtoXMLPrinter sut = new JSONtoXMLPrinter();
 
 	@Test
+	@DisplayName("prova stampa")
+	public void printTry(){
+
+		XMLElement root=new XMLElement();
+		XMLElement transaction=new XMLElement("transaction","");
+		XMLElement id=new XMLElement("id","385938");
+		XMLElement region = new XMLElement("region","");
+		XMLElement e4=new XMLElement("mannaggia", "");
+		XMLElement e5= new XMLElement("port","pol");
+		XMLElement nullElement=new XMLElement("fre",null);
+
+		id.insertAttributeEntry("mannaggia","\"mannaggia\"");
+		id.insertAttributeEntry("\"ciao","\"ciao");
+
+		root.addChild(transaction);
+		transaction.addChild(id);
+		transaction.addChild(nullElement);
+		transaction.addChild(region);
+		region.addChild(e4);
+		e4.addChild(e5);
+
+		sut.printToXMLFormat(root);
+	}
+
+	/*@Test
 	@DisplayName("null single attribute")
 	public void nullTest() {
 
@@ -44,6 +69,6 @@ class JSONtoXMLPrinterTest {
 	//	assertThat(actual).isEqualTo(expected);
 		System.out.println(actual);
 
-	}
+	}*/
 
 }

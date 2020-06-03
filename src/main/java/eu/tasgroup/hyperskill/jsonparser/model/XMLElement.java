@@ -19,6 +19,20 @@ public class XMLElement implements TreeElement<XMLElement> {
         this.text = "";
     }
 
+    public XMLElement(String tagName, String text) {
+        this.tagName = tagName;
+        this.text = text;
+        children = new ArrayList<>();
+        attributes = new LinkedHashMap<>();
+    }
+
+    public XMLElement(String tagName){
+        this.tagName=tagName;
+        children = new ArrayList<>();
+        attributes = new LinkedHashMap<>();
+        this.text = "";
+    }
+
     public Map<String, String> getAttributes() {
         return attributes;
     }
