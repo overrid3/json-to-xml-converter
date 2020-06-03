@@ -4,33 +4,30 @@ import eu.tasgroup.hyperskill.jsonparser.file.FileManager;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.printer.JSONtoXMLPrinter;
-import eu.tasgroup.hyperskill.jsonparser.traverse.Traverser;
+import eu.tasgroup.hyperskill.jsonparser.traverse.JSONTraverser;
 import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter;
 import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 
 public class DocumentConverter {
 
     private FileManager fm;
-    private Traverser trv;
+    private JSONTraverser trv;
     private JSONConverter jsonConverter;
-    private JSONElementVisitor jsonElementVisitor;
     private JSONtoXMLPrinter printer;
 
 
     public DocumentConverter() {
 
         fm=new FileManager();
-        trv=new Traverser();
+        trv=new JSONTraverser();
         jsonConverter=new JSONConverter();
         printer=new JSONtoXMLPrinter();
-        jsonElementVisitor=new JSONElementVisitor();
     }
 
-    public void convert() throws IOException {
+    public void convertJsonToXml() throws IOException {
 
         String text=fm.load("firstCompleteExample.json");
         if (text.startsWith("{")) {
@@ -39,10 +36,9 @@ public class DocumentConverter {
 
             XMLElement xmlE=jsonConverter.convert(jsonE);
 
-            String s = jsonElementVisitor.createString(xmlE);
-            
+            String jsonToXml = printer.printToXMLFormat(xmlE);
+            File file = fm.writeOnFile("D:\\GIT\\converter\\src\\test\\resources\\file.txt", jsonToXml);
             //File f = fm.writeOnFile("C:\\Users\\donatom\\IdeaProjects\\BertucciolisConverter\\src\\main\\java\\eu\\tasgroup\\hyperskill\\jsonparser\\app\\text.txt", s);
-            printer.printToXMLFormat(xmlE);
         }
     }
 }

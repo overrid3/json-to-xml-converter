@@ -6,7 +6,7 @@ import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Traverser {
+public class JSONTraverser {
 
     public static final String JSON_STRING_CAN_T_BE_NULL = "JSON string can't be null";
     public static final String INVALID_JSON = "Invalid JSON";

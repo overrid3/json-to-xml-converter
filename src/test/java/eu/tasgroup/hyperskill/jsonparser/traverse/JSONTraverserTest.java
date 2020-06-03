@@ -9,8 +9,8 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.*;
 
-class TraverserTest {
-    Traverser sut = new Traverser();
+class JSONTraverserTest {
+    JSONTraverser sut = new JSONTraverser();
 
     @DisplayName("Testing traverse with example 1")
     @Test
@@ -93,7 +93,7 @@ class TraverserTest {
     public void traverse3() {
         assertThatThrownBy(() -> sut.traverse(null))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(Traverser.JSON_STRING_CAN_T_BE_NULL);
+                .hasMessage(JSONTraverser.JSON_STRING_CAN_T_BE_NULL);
     }
 
     @DisplayName("testing traverse with invalid JSON")
@@ -102,7 +102,7 @@ class TraverserTest {
 
         assertThatThrownBy(() -> sut.traverse("{\"ciao:123}"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(Traverser.INVALID_JSON);
+                .hasMessage(JSONTraverser.INVALID_JSON);
     }
 
     @DisplayName("testing traversing of a JSON string with empty parenthesis")
