@@ -8,436 +8,399 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 class JSONConverterTest {
 
-	private JSONConverter sut;
-
-	@BeforeEach
-	public void initSut() {
-		sut = new JSONConverter();
-	}
-
-	@DisplayName("Testing conversion from JSON to XML with one key-one value element")
-	@Test
-	public void convertTest1() {
-
-		JSONElement e = new JSONElement();
-		e.setKey("wanagana");
-		e.setValue("utrecht");
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE.getTagName()).isEqualTo("wanagana");
-		assertThat(xmlE.getText()).isEqualTo("utrecht");
-		assertThat(xmlE.getChildren()).isEmpty();
-		assertThat(xmlE.getParent()).isNull();
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element")
-	@Test
-	public void convertTest2() {
-
-		JSONElement e = new JSONElement("wanagana", null);
-		JSONElement e1 = new JSONElement("uri", 123);
-		JSONElement e2 = new JSONElement("iut", true);
-
-		e1.setParent(e);
-		e2.setParent(e);
-
-		e.addChild(e1);
-		e.addChild(e2);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE.getTagName()).isEqualTo("wanagana");
-		assertThat(xmlE.getChildren()).isNotEmpty();
-		assertThat(xmlE.getParent()).isNull();
-
-		assertThat(xmlE.getChildren().get(0).getTagName()).isEqualTo("uri");
-		assertThat(xmlE.getChildren().get(0).getText()).isEqualTo("123");
-		assertThat(xmlE.getChildren().get(0).getParent().getTagName()).isEqualTo("wanagana");
-
-		assertThat(xmlE.getChildren().get(1).getTagName()).isEqualTo("iut");
-		assertThat(xmlE.getChildren().get(1).getText()).isEqualTo("true");
-		assertThat(xmlE.getChildren().get(1).getParent().getTagName()).isEqualTo("wanagana");
-	}
-
-	@DisplayName("testing conversion with null JSON Element")
-	@Test
-	public void convertTest3() {
-		assertThatThrownBy(() -> sut.convert(null))
-		.isInstanceOf(NullPointerException.class)
-		.hasMessage(JSONConverter.JSON_ELEMENT_CAN_T_BE_NULL);
-	}
-
-	@Test
-	public void convertAttributesAndValue() {
-
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element with fake attributes for xml")
-	@Test
-	public void convertTest4() {
-		//"key" : { "@asdsa" : "asdsad", "#key" : "kkkkk", "asdad": "val" }
-		//-> "<key> <asdsa>asdsad</asdsa> <key>kkkkk</key> <asdad>val</asdaad> </key>"
-
-		JSONElement e = new JSONElement("key", null);
-		JSONElement e1 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e2 = new JSONElement("#key", "kkkkk");
-		JSONElement e3 = new JSONElement("asdad", "val");
-
-		e1.setParent(e);
-		e2.setParent(e);
-		e3.setParent(e);
-
-		e.addChild(e1);
-		e.addChild(e2);
-		e.addChild(e3);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", null, null);
-
-		assertThat(xmlE.getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(
-				tuple("asdsa", "asdsad", xmlE),
-				tuple("key", "kkkkk", xmlE),
-				tuple("asdad", "val", xmlE));
-
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element with fake attributes for xml second type")
-	@Test
-	public void convertTest5() {
-		//"key" : { "@asdsa" : "asdsad", "#key" : "kkkkk" }
-		//-> "<key asdsa="asdsad">kkkkk</key>"
-
-		JSONElement e = new JSONElement("key", null);
-		JSONElement e1 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e2 = new JSONElement("#key", "kkkkk");
-
-		e1.setParent(e);
-		e2.setParent(e);
-
-		e.addChild(e1);
-		e.addChild(e2);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", "kkkkk", null);
-
-		assertThat(xmlE.getAttributes()).containsEntry("asdsa", "asdsad");
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element with attributes and one child")
-	@Test
-	public void convertTest6() {
-		//"key" : { "@asdsa" : "asdsad", "#key" : {"figlioincomodo": 6} }
-		//-> "<key asdsa="asdsad"> <figlioincomodo>6</figlioincomodo> </key>"
-
-		JSONElement e = new JSONElement("key", null);
-		JSONElement e1 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e2 = new JSONElement("#key", null);
-		JSONElement e21 = new JSONElement("figlioincomodo", 6);
-
-		e1.setParent(e);
-		e2.setParent(e);
-		e21.setParent(e2);
-
-		e.addChild(e1);
-		e.addChild(e2);
-		e2.addChild(e21);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", null, null);
-
-		assertThat(xmlE.getAttributes()).containsEntry("asdsa", "asdsad");
-
-		assertThat(xmlE.getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("figlioincomodo", "6", xmlE));
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element with attributes and children")
-	@Test
-	public void convertTest7() {
-		//"key" : { "@asdsa" : "asdsad", "#key" : {"figlioincomodo": 6, "ciao" : "mondo"} }
-		//-> "<key asdsa="asdsad"> <figlioincomodo>6</figlioincomodo> </key>"
-
-		JSONElement e = new JSONElement("key", null);
-		JSONElement e1 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e2 = new JSONElement("#key", null);
-		JSONElement e21 = new JSONElement("figlioincomodo", 6);
-		JSONElement e22 = new JSONElement("ciao", "mondo");
-
-		e1.setParent(e);
-		e2.setParent(e);
-		e21.setParent(e2);
-		e22.setParent(e2);
-
-		e.addChild(e1);
-		e.addChild(e2);
-		e2.addChild(e21);
-		e2.addChild(e22);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", null, null);
-
-		assertThat(xmlE.getAttributes()).containsEntry("asdsa", "asdsad");
-
-		assertThat(xmlE.getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("figlioincomodo", "6", xmlE), tuple("ciao", "mondo", xmlE));
-	}
-
-	@DisplayName("Testing conversion from JSON to XML of a complex element with  two attributes and children")
-	@Test
-	public void convertTest8() {
-		//"key" : { "@asdsa" : "asdsad","@buon" : "weekend", "#key" : {"figlioincomodo": 6, "ciao" : "mondo"} }
-		//-> "<key asdsa="asdsad"> <figlioincomodo>6</figlioincomodo> </key>"
-
-		JSONElement e = new JSONElement("key", null);
-		JSONElement e1 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e2 = new JSONElement("@buon", "weekend");
-		JSONElement e3 = new JSONElement("#key", null);
-		JSONElement e11 = new JSONElement("figlioincomodo", 6);
-		JSONElement e12 = new JSONElement("ciao", "mondo");
-
-		e1.setParent(e);
-		e2.setParent(e);
-		e3.setParent(e);
-		e11.setParent(e3);
-		e12.setParent(e3);
-
-		e.addChild(e1);
-		e.addChild(e2);
-		e.addChild(e3);
-		e3.addChild(e11);
-		e3.addChild(e12);
-
-		XMLElement xmlE = sut.convert(e);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", null, null);
-
-		assertThat(xmlE.getAttributes()).containsEntry("asdsa", "asdsad");
-		assertThat(xmlE.getAttributes()).containsEntry("buon", "weekend");
-
-		assertThat(xmlE.getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("figlioincomodo", "6", xmlE), tuple("ciao", "mondo", xmlE));
-	}
-
-	@DisplayName("Testing conversion of invalid keys")
-	@Test
-	public void convertTest9() {
-		//{"key" : { "@asdsa" : "asdsad", "#key" : "burton"}, "junior" : {"@":"lkjdf","#":"deoijdio"}}
-		//-> "<key asdsa="asdsad"> <figlioincomodo>6</figlioincomodo> </key>"
-
-		JSONElement root = new JSONElement("root", null);
-		JSONElement e1 = new JSONElement("key", null);
-		JSONElement e2 = new JSONElement("@asdsa", "asdsad");
-		JSONElement e3 = new JSONElement("#key", "burton");
-		JSONElement e4 = new JSONElement("junior", null);
-		JSONElement e5 = new JSONElement("@", "oeowh");
-		JSONElement e6 = new JSONElement("#", "oiadfhdi");
-
-		//AGGIUNTA FIGLI AI SINGOLI NODI
-		root.addChild(e1);
-		root.addChild(e4);
-		e1.addChild(e2);
-		e1.addChild(e3);
-		e4.addChild(e5);
-		e4.addChild(e6);
-
-		XMLElement xmlE = sut.convert(root);
-
-		assertThat(xmlE)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("root", null, null);
-
-		assertThat(xmlE.getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("key", "burton", xmlE), tuple("junior", "", xmlE));
-
-		assertThat(xmlE.getChildren().get(0).getTagName()).isEqualTo("key");
-		assertThat(xmlE.getChildren().get(0).getText()).isEqualTo("burton");
-		assertThat(xmlE.getChildren().get(0).getAttributes())
-		.containsEntry("asdsa", "asdsad");
-
-		assertThat(xmlE.getChildren().get(1).getAttributes()).isEmpty();
-		assertThat(xmlE.getChildren().get(1).getChildren()).isEmpty();
-	}
-
-	@DisplayName("Testing conversion with empty key")
-	@Test
-	public void convertTest10() {
-
-		//{"":{"@":JFK, "#": "iouoee"},"example":{"@dre":"dre","#example":"fre"}}
-
-		JSONElement root = new JSONElement("root", null);
-		JSONElement e1 = new JSONElement("", null);
-		JSONElement e2 = new JSONElement("@", "JFKF");
-		JSONElement e3 = new JSONElement("#", "iouoee");
-		JSONElement e4 = new JSONElement("example", null);
-		JSONElement e5 = new JSONElement("@dre", "dre");
-		JSONElement e6 = new JSONElement("#example", "fre");
-
-		root.addChild(e1);
-		root.addChild(e4);
-		e1.addChild(e2);
-		e1.addChild(e3);
-		e4.addChild(e5);
-		e4.addChild(e6);
-
-
-		XMLElement xmlE = sut.convert(root);
-
-		assertThat(xmlE.getTagName()).isEqualTo("root");
-		assertThat(xmlE.getText()).isEqualTo(null);
-		assertThat(xmlE.getAttributes()).isEmpty();
-		assertThat(xmlE.getChildren().size()).isEqualTo(1);
-		assertThat(xmlE.getChildren().get(0).getTagName()).isEqualTo("example");
-		assertThat(xmlE.getChildren().get(0).getText()).isEqualTo("fre");
-		assertThat(xmlE.getChildren().get(0).getAttributes()).containsEntry("dre","dre");
-		assertThat(xmlE.getChildren().get(0).getChildren()).isEmpty();
-	}
-
-	@DisplayName("Testing conversion with strange entries")
-	@Test
-	public void convertTest11(){
-
-		/*"inner4": {
-            "@": 123,
-                    "#inner4": "value3"
-        },
-        "inner4.2": {
-            "": 123,
-                    "#inner4.2": "value3"
+    private JSONConverter sut;
+
+    @BeforeEach
+    public void setUp() {
+        sut = new JSONConverter();
+    }
+
+    @DisplayName("Testing conversion of a correctly formatted XML element")
+    @Test
+    public void convertTest1() {
+
+        //"key":{"#key":"ok"}
+
+        JSONElement e1 = new JSONElement("key", null);
+        JSONElement e2 = new JSONElement("#key", "ok");
+
+        e1.addChild(e2);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("key");
+        assertThat(e.getText()).isEqualTo("ok");
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren()).isEmpty();
+    }
+
+    @DisplayName("Testing conversion of a correctly formatted XML Element with attribute in addition")
+    @Test
+    public void convertTest2() {
+
+        //"key":{"#key":"ok", "@kao":"hur"}
+
+        JSONElement e1 = new JSONElement("key", null);
+        JSONElement e2 = new JSONElement("#key", "ok");
+        JSONElement e3 = new JSONElement("@kao", "hur");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("key");
+        assertThat(e.getText()).isEqualTo("ok");
+        assertThat(e.getAttributes()).containsEntry("kao", "hur");
+        assertThat(e.getChildren()).isEmpty();
+    }
+
+    @DisplayName("Conversion test of a JSON element with complex hash key child")
+    @Test
+    public void convertTest3() {
+
+        //"key":{"#key":{"@e1":orgodo,"#e2":"mae"}, "@kao":"hur"}
+
+        JSONElement e1 = new JSONElement("key", null);
+        JSONElement e2 = new JSONElement("#key", null);
+        JSONElement e3 = new JSONElement("@kao", "hur");
+        JSONElement e4 = new JSONElement("@e1", "orgoda");
+        JSONElement e5 = new JSONElement("@e2", "mae");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+        e2.addChild(e4);
+        e2.addChild(e5);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("key");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("key", "", e),
+                        tuple("kao", "hur", e));
+        assertThat(e.getChildren().get(0).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("e1", "orgoda", e.getChildren().get(0)),
+                        tuple("e2", "mae", e.getChildren().get(0)));
+    }
+
+    @DisplayName("Testing conversion of nested JSON objects")
+    @Test
+    public void convertTest4() {
+        //inner1:{inner2:{inner3:{key1:bla,key2:jack}}}
+
+        JSONElement e1 = new JSONElement("inner1", null);
+        JSONElement e2 = new JSONElement("inner2", null);
+        JSONElement e3 = new JSONElement("inner3", null);
+        JSONElement e4 = new JSONElement("key1", "bla");
+        JSONElement e5 = new JSONElement("key2", "jack");
+
+        e1.addChild(e2);
+        e2.addChild(e3);
+        e3.addChild(e4);
+        e3.addChild(e5);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("inner1");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("inner2", "", e));
+        assertThat(e.getChildren().get(0).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("inner3", "", e.getChildren().get(0)));
+        assertThat(e.getChildren().get(0).getChildren().get(0).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("key1", "bla", e.getChildren().get(0).getChildren().get(0)),
+                        tuple("key2", "jack", e.getChildren().get(0).getChildren().get(0)));
+    }
+
+    @DisplayName("Conversion test of a not correctly formatted JSON element with children")
+    @Test
+    public void convertTest5() {
+
+        //inner4:{@:123,#inner4:"cuzzupe"}
+
+        JSONElement e1 = new JSONElement("inner4", null);
+        JSONElement e2 = new JSONElement("@", 123);
+        JSONElement e3 = new JSONElement("#inner4", "cuzzupe");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("inner4");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("inner4", "cuzzupe", e));
+    }
+
+    @DisplayName("Conversion test of a correctly formatted JSON object, but with not correct keys")
+    @Test
+    public void convertTest6() {
+
+        JSONElement e1 = new JSONElement("inner5", null);
+        JSONElement e2 = new JSONElement("@her", 123);
+        JSONElement e3 = new JSONElement("#inner4", "cuzzupe");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("inner5");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("her", "123", e),
+                        tuple("inner4", "cuzzupe", e));
+
+    }
+
+    @DisplayName("Conversion test with not correctly formatted JSON object (only one @key defined,no one other)")
+    @Test
+    public void convertTest7() {
+
+        /*"inner8": {
+            "@attr3": "value7"
         }*/
 
-		JSONElement root=new JSONElement("root",null);
-		JSONElement e1 = new JSONElement("inner4", null);
-		JSONElement e2 = new JSONElement("@", 123);
-		JSONElement e3 = new JSONElement("#inner4", "value3");
-		JSONElement e4 = new JSONElement("inner4.2", null);
-		JSONElement e5 = new JSONElement("@", 123);
-		JSONElement e6 = new JSONElement("#inner4.2", "value3");
+        JSONElement e1 = new JSONElement("inner8", null);
+        JSONElement e2 = new JSONElement("@attr3", "value7");
 
-		root.addChild(e1);
-		root.addChild(e4);
+        e1.addChild(e2);
 
-		e1.addChild(e2);
-		e1.addChild(e3);
+        XMLElement e = sut.convert(e1);
 
-		e4.addChild(e5);
-		e4.addChild(e6);
+        assertThat(e.getTagName()).isEqualTo("inner8");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("attr3", "value7", e));
+    }
 
-		XMLElement e=sut.convert(root);
+    @DisplayName("Conversion test of a not correctly formatted JSON object (one @key, one #key, one normal key)")
+    @Test
+    public void convertTest8() {
 
-		assertThat(e.getTagName()).isEqualTo("root");
-		assertThat(e.getText()).isEqualTo(null);
-		assertThat(e.getAttributes()).isEmpty();
-		assertThat(e.getChildren().size()).isEqualTo(2);
-		assertThat(e.getChildren().get(0).getTagName()).isEqualTo("inner4");
-		assertThat(e.getChildren().get(0).getChildren().size()).isEqualTo(1);
-		assertThat(e.getChildren().get(0).getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("inner4","value3",e.getChildren().get(0)));
-		assertThat(e.getChildren().get(1).getChildren().size()).isEqualTo(1);
-		assertThat(e.getChildren().get(1).getChildren())
-		.extracting("tagName", "text", "parent")
-		.containsExactly(tuple("inner4.2","value3",e.getChildren().get(1)));
-	}
+        /*"inner9": {
+            "@attr4": "value8",
+            "#inner9": "value9",
+            "something": "value10"
+        }*/
 
-	@DisplayName("Converting test with with only hash key")
-	@Test
-	public void convertTest12(){
+        JSONElement e1 = new JSONElement("inner9", null);
+        JSONElement e2 = new JSONElement("@attr4", "value8");
+        JSONElement e3 = new JSONElement("#inner9", "value9");
+        JSONElement e4 = new JSONElement("something", "value10");
 
-		JSONElement root=new JSONElement("root",null);
-		JSONElement e1 = new JSONElement("inner7", null);
-		JSONElement e2 = new JSONElement("#inner7", "eeeeee duuuuuuaaaajeeeeee");
+        e1.addChild(e2);
+        e1.addChild(e3);
+        e1.addChild(e4);
 
-		root.addChild(e1);
-		e1.addChild(e2);
+        XMLElement e = sut.convert(e1);
 
-		XMLElement e=sut.convert(root);
+        assertThat(e.getTagName()).isEqualTo("inner9");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("attr4", "value8", e),
+                        tuple("inner9", "value9", e),
+                        tuple("something", "value10", e));
+    }
 
-		assertThat(e.getTagName()).isEqualTo("root");
-		assertThat(e.getText()).isEqualTo(null);
-		assertThat(e.getChildren())
-		.extracting("tagName", "text", "parent")
-		.contains(tuple("inner7","eeeeee duuuuuuaaaajeeeeee",e));
-		assertThat(e.getChildren().get(0).getAttributes()).isEmpty();
-	}
+    @DisplayName("Conversion test of a corretly formatted JSON object but with null values for its child")
+    @Test
+    public void convertTest9() {
 
-	@DisplayName("Testing conversion of JSON objects with null values")
-	@Test
-	public void convertTest13(){
+        /*"inner10": {
+            "@attr5": null,
+                    "#inner10": null
+        }*/
 
-		JSONElement root=new JSONElement("root",null);
-		JSONElement e1 = new JSONElement("inner7", null);
-		JSONElement e2 = new JSONElement("@key1", null);
-		JSONElement e3 = new JSONElement("#inner7", null);
+        JSONElement e1 = new JSONElement("inner10", null);
+        JSONElement e2 = new JSONElement("@attr5", null);
+        JSONElement e3 = new JSONElement("#inner10", null);
 
-		root.addChild(e1);
-		e1.addChild(e2);
-		e1.addChild(e3);
+        e1.addChild(e2);
+        e1.addChild(e3);
 
-		XMLElement e=sut.convert(root);
+        XMLElement e = sut.convert(e1);
 
-		assertThat(e.getTagName()).isEqualTo("root");
-		assertThat(e.getText()).isNull();
-		assertThat(e.getChildren().size()).isEqualTo(1);
-		assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getTagName()).isEqualTo("inner10");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).containsEntry("attr5", "");
+    }
 
-		assertThat(e.getChildren().get(0).getTagName()).isEqualTo("inner7");
-		assertThat(e.getChildren().get(0).getText()).isEqualTo("null");
-		assertThat(e.getChildren().get(0).getChildren()).isEmpty();
-		assertThat(e.getChildren().get(0).getAttributes()).containsEntry("key1","null");
-	}
+    @DisplayName("Conversion test of a correctly formatted JSON Element, but with empty normalized strings")
+    @Test
+    public void convertTest10() {
 
-	@DisplayName("Testing conversion of JSON object keys for attributes and values with same name")
-	@Test
-	public void convertTest14() {
-		//key:{@child:ciao,#key1:cc,key1:aa} => key:{@child:ciao,key1:aa}
+        //inner10{inner11:{"@":"value1","#":"value2"},inner12:{"#inner12":"value3"}}
 
-		JSONElement e = new JSONElement("key",null);
-		JSONElement e1 = new JSONElement("@child","ciao");
-		JSONElement e2 = new JSONElement("#key1","cc");
-		JSONElement e3 = new JSONElement("key1","aa");
+        JSONElement e1 = new JSONElement("inner10", null);
+        JSONElement e2 = new JSONElement("inner11", null);
+        JSONElement e3 = new JSONElement("#", null);
+        JSONElement e4 = new JSONElement("@", null);
+        JSONElement e5 = new JSONElement("inner12", null);
+        JSONElement e6 = new JSONElement("#inner12", "value3");
 
+        e1.addChild(e2);
+        e1.addChild(e5);
 
-		e.addChild(e1);
-		e.addChild(e2);
-		e.addChild(e3);
+        e2.addChild(e3);
+        e2.addChild(e4);
 
+        e5.addChild(e6);
 
-		XMLElement el=sut.convert(e);
+        XMLElement xmlE = sut.convert(e1);
 
-		assertThat(el)
-		.extracting("tagName", "text", "parent")
-		.containsExactly("key", null, null);
-		
-		assertThat(el.getChildren().size()).isEqualTo(2);
-		assertThat(el.getChildren())
-		.extracting("tagName", "text", "parent")
-		.contains(tuple("child","ciao",el),tuple("key1","aa",el));
-	}
+        assertThat(xmlE.getTagName()).isEqualTo("inner10");
+        assertThat(xmlE.getText()).isEmpty();
+        assertThat(xmlE.getAttributes()).isEmpty();
+        assertThat(xmlE.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("inner11", "", xmlE),
+                        tuple("inner12", "value3", xmlE)); //AL MOMENTO E' NULL MA DOBBIAMO MODIFICARE LA CONDIZIONE
+        assertThat(xmlE.getChildren().get(0).getChildren()).isEmpty();
+        assertThat(xmlE.getAttributes()).isEmpty();
+    }
+
+    @DisplayName("conversion test of a JSON element with duplicate keys")
+    @Test
+    public void convertTest11() {
+
+        /*"inner12": {
+            "@somekey": "attrvalue",
+                    "#inner12": null,
+                    "somekey": "keyvalue",
+                    "inner12": "notnull"
+        }*/
+
+        JSONElement e1 = new JSONElement("inner12", null);
+        JSONElement e2 = new JSONElement("@somekey", "attrvalue");
+        JSONElement e3 = new JSONElement("#inner12", null);
+        JSONElement e4 = new JSONElement("somekey", "keyvalue");
+        JSONElement e5 = new JSONElement("inner12", "notnull");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+        e1.addChild(e4);
+        e1.addChild(e5);
+
+        XMLElement xmlE = sut.convert(e1);
+
+        assertThat(xmlE.getTagName()).isEqualTo("inner12");
+        assertThat(xmlE.getText()).isEmpty();
+        assertThat(xmlE.getAttributes()).isEmpty();
+        assertThat(xmlE.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("somekey", "keyvalue", xmlE),
+                        tuple("inner12", "notnull", xmlE));
+    }
+
+    @DisplayName("Conversion test of a JSON element with complex #key and @key elements")
+    @Test
+    public void convertTest12() {
+
+        /*"inner13": {
+            "@invalid_attr": {
+                "some_key": "some value"
+            },
+            "#inner13": {
+                "key": "value"
+            }
+        }*/
+
+        JSONElement e1 = new JSONElement("inner13", null);
+        JSONElement e2 = new JSONElement("@invalid_attr", null);
+        JSONElement e3 = new JSONElement("some_key", "some value");
+        JSONElement e4 = new JSONElement("#inner13", null);
+        JSONElement e5 = new JSONElement("key", "value");
+
+        e1.addChild(e2);
+        e1.addChild(e4);
+
+        e2.addChild(e3);
+
+        e4.addChild(e5);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("inner13");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("invalid_attr", "", e),
+                        tuple("inner13", "", e));
+        assertThat(e.getChildren().get(0).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("some_key", "some value", e.getChildren().get(0)));
+        assertThat(e.getChildren().get(1).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("key", "value", e.getChildren().get(1)));
+    }
+
+    @DisplayName("Conversion test of a JSON object with empty key")
+    @Test
+    public void converTest13() {
+
+        /*"": {
+            "#": null,
+             "secret": "this won't be converted"
+        }*/
+
+    }
+
+    @DisplayName("Conversion test of a large JSON object")
+    @Test
+    public void convertTest14() {
+
+        //may:{"@march":"april","#may":{"ciao":"ciao","ciao1":"ciao1"},"maestro":"sniff"}
+
+        JSONElement e1 = new JSONElement("may", null);
+        JSONElement e2 = new JSONElement("@march", "april");
+        JSONElement e3 = new JSONElement("#may", null);
+        JSONElement e4 = new JSONElement("ciao", "ciao");
+        JSONElement e5 = new JSONElement("ciao1", "ciao1");
+        JSONElement e6 = new JSONElement("maestro", "sniff");
+
+        e1.addChild(e2);
+        e1.addChild(e3);
+        e1.addChild(e6);
+        e3.addChild(e4);
+        e3.addChild(e5);
+
+        XMLElement e = sut.convert(e1);
+
+        assertThat(e.getTagName()).isEqualTo("may");
+        assertThat(e.getText()).isEmpty();
+        assertThat(e.getAttributes()).isEmpty();
+        assertThat(e.getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("march", "april", e),
+                        tuple("may", "", e),
+                        tuple("maestro", "sniff", e));
+        assertThat(e.getChildren().get(1).getChildren())
+                .extracting("tagName", "text", "parent")
+                .containsExactly(tuple("ciao", "ciao", e.getChildren().get(1)),
+                        tuple("ciao1", "ciao1", e.getChildren().get(1)));
+    }
 
 }

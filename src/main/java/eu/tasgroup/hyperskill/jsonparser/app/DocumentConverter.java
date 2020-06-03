@@ -5,8 +5,7 @@ import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.printer.JSONtoXMLPrinter;
 import eu.tasgroup.hyperskill.jsonparser.traverse.Traverser;
-import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter2;
-import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor2;
+import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter;
 import eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor;
 
 import java.io.File;
@@ -17,7 +16,7 @@ public class DocumentConverter {
 
     private FileManager fm;
     private Traverser trv;
-    private JSONConverter2 jsonConverter;
+    private JSONConverter jsonConverter;
     private JSONElementVisitor jsonElementVisitor;
     private JSONtoXMLPrinter printer;
 
@@ -26,7 +25,7 @@ public class DocumentConverter {
 
         fm=new FileManager();
         trv=new Traverser();
-        jsonConverter=new JSONConverter2();
+        jsonConverter=new JSONConverter();
         printer=new JSONtoXMLPrinter();
         jsonElementVisitor=new JSONElementVisitor();
     }

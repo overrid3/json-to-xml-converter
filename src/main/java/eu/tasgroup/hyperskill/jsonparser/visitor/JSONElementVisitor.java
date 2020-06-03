@@ -7,16 +7,16 @@ import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 
 public class JSONElementVisitor {
 
-	public static String XMLOBJECT_CANNOT_BE_NULL = "XML Object cannot be null";
+	public static final String XMLOBJECT_CANNOT_BE_NULL = "XML Object cannot be null";
 	    Stack<XMLElement> path;
-	    String stringa = "";
+	    String stringResult = "";
 	    public JSONElementVisitor(){
 	        path =new Stack<>();
 	    }
 
 	    public String  createString (XMLElement e) {
 	    	visit(e);
-	    	return stringa;
+	    	return stringResult;
 	    }
 	    public void visit(XMLElement e) {
 	    	
@@ -40,22 +40,22 @@ public class JSONElementVisitor {
 
 	    private void printPath(Stack<XMLElement> path) {
 
-	    	stringa += "\nElement:\npath = ";
-	        path.stream().filter(element -> path.indexOf(element)!=(path.size()-1)).forEach(el -> stringa += el.getTagName() + ", ");
-	        stringa+= path.peek().getTagName() + "\n";
+	    	stringResult += "\nElement:\npath = ";
+	        path.stream().filter(element -> path.indexOf(element)!=(path.size()-1)).forEach(el -> stringResult += el.getTagName() + ", ");
+	        stringResult+= path.peek().getTagName() + "\n";
 	    }
 
 	    private void printValue(XMLElement e) {
 
 	        if (e.getChildren().isEmpty()) 
-	        	stringa += e.getText()==null ? "value = " + e.getText()+"\n" : "value = " +"\""  + e.getText() + "\"\n";
+	        	stringResult += e.getText()==null ? "value = " + e.getText()+"\n" : "value = " +"\""  + e.getText() + "\"\n";
 	    }
 
 	    private void printAttributes(XMLElement e){
 
 	        if (!e.getAttributes().isEmpty()){
-	            stringa += "attributes:\n";
-	            e.getAttributes().entrySet().stream().forEach(entry -> stringa += (entry.getKey() + " = " + "\""+entry.getValue()+"\"\n"));
+	            stringResult += "attributes:\n";
+	            e.getAttributes().entrySet().stream().forEach(entry -> stringResult += (entry.getKey() + " = " + "\""+entry.getValue()+"\"\n"));
 	        }
 	    }
 	}

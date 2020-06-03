@@ -4,144 +4,82 @@ import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.*;
 
 public class JSONConverter {
 
-	public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
+    public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
 
-	public XMLElement convert(JSONElement jsonElement) {
+    public XMLElement convert(JSONElement jsonElement) {
 
-		Objects.requireNonNull(jsonElement, JSON_ELEMENT_CAN_T_BE_NULL);
+        Objects.requireNonNull(jsonElement, JSON_ELEMENT_CAN_T_BE_NULL);
 
-		XMLElement xmlElement = new XMLElement();
+        XMLElement xmlElement = new XMLElement();
 
-		//key
-		if (JSONUtils.isValidKey(jsonElement.getKey())) {
-			xmlElement.setTagName(JSONUtils.getNormalizedKey(jsonElement.getKey()));
-		}
+        xmlElement.setTagName(JSONUtils.getNormalizedKey(jsonElement.getKey())); //SETTO TAG NAME ---> L'HO MESSO QUI PERCHE' LO FA SEMPRE!!!!!
 
-		//text
-		if(jsonElement.getChildren().isEmpty()) {
-			xmlElement.setText(setValueXML(jsonElement));
-			return xmlElement;
-		}
+        if (JSONUtils.hasNoChildren(jsonElement)) {
+            xmlElement.setText(jsonElement.getValue());
+            return xmlElement;
+        } else if (isCorretlyFormattedXMLElement(jsonElement)) {
+            checkForText(xmlElement, jsonElement); //CONTROLLO SUL TEXT
+            checkForAttributesToInsert(xmlElement, jsonElement); //CONTROLLO SUGLI ATTRIBUTI (VIENE ESEGUITO ANCHE SE NON CI SONO
+        } else {
+            Set<JSONElement> set = checkForDuplicates(jsonElement);
+            if (!set.isEmpty()) {
+                jsonElement.getChildren().removeAll(set); //RIMUOVE GLI EVENTUALI DUPLICATI
+            }
 
-		//il json contiene solo figli non validi => l'xml avra' valore stringa vuota 
-		if (noValidChildren(jsonElement)) {
-			xmlElement.setText("");
-			return xmlElement;
-		}
+            jsonElement.getChildren().stream()
+                    .filter(child -> !JSONUtils.illegalInitialAndOnlyCharacter(child.getKey()))
+                    .forEach(child -> xmlElement.addChild(convert(child)));
+        }
+        return xmlElement;
+    }
 
-		// non metto i duplicati nell' xml
-		if(checkDuplicates(jsonElement)) {
-			AtomicBoolean found= new AtomicBoolean(false);
-			jsonElement.getChildren().stream().filter(el -> (el.getKey().startsWith("@")||el.getKey().startsWith("#"))&& el.getKey().length()>1)
-			.forEach(el -> {
-				for (JSONElement j :jsonElement.getChildren()) {
-					if (JSONUtils.getNormalizedKey(el.getKey()).equals(j.getKey())) {
-						xmlElement.addChild(convert(j));
-						found.set(true);
-					}
-				}
-				if (found.get()==false){
-					xmlElement.addChild(convert(el));
-				}
-				found.set(false);
-			});
+    //CONTROLLO SE E' EFFETTIVAMENTE E' UN ELEMENTO JSON "CORRETTAMENTE FORMATTATO", OVVERO RISPETTA LA STRUTTURA xyz:{@attr:"attr",#xyz:hur}
+    private boolean isCorretlyFormattedXMLElement(JSONElement e) {
+        return JSONUtils.hasExactlyOneChildWithHashKey(e)
+                && !JSONUtils.hasChildWithoutSpecialCharacter(e)
+                && !JSONUtils.hasEmptyOrIllegalKey(e)
+                && !JSONUtils.hasNotEmptyChildren(e);
+    }
 
-			return xmlElement;
-		}
+    //METODO PER VEDERE SE L'ELEMENTO CON CHIAVE #KEY NON HA VALORE NULLO
+    private void checkForText(XMLElement xe, JSONElement je) {
 
-		//tolgo elemnti con chiave non valida
-		//considero tutti i figli come elementi xml
-		//key:{key1:val1,key2:val2} oppure key:{@:val,#key:val} => key:{key:val} 
-		if (atLeastOneNormalChild(jsonElement) || singleSpecialCharacterKey(jsonElement.getChildren())) {
-			jsonElement.getChildren().stream().filter(child ->
-			JSONUtils.isValidKey(child.getKey())).forEach(child -> xmlElement.addChild(convert(child)));
-			return xmlElement;
+        Optional<JSONElement> optional = je.getChildren().stream().filter(child -> child.getKey().startsWith("#")).findFirst();
 
-		} 
+        if (optional.get().getValue() != null) {
+            xe.setText(optional.get().getValue().toString());
+        }
+    }
 
-		//attributi 
-		jsonElement.getChildren().stream().filter(child -> child.getKey().startsWith("@") && JSONUtils.isValidKey(child.getKey()))
-		.forEach(child -> {
-			xmlElement.insertAttributeEntry(JSONUtils.getNormalizedKey(child.getKey()), setValueXML(child));
-		});
+    private void checkForAttributesToInsert(XMLElement xmlElement, JSONElement jsonElement) { //VIENE ESEGUITO ANCHE SE I FIGLI CON LA CHIOCCIOLA NON CI SONO
+        jsonElement.getChildren().stream()
+                .filter(child -> child.getKey().startsWith("@"))
+                .forEach(child -> xmlElement.insertAttributeEntry(JSONUtils.getNormalizedKey(child.getKey()), setAttributeValueToXML(child)));
+    }
 
-		//key:{#key:val} => key ha un figlio con chiave key
-		jsonElement.getChildren().stream()
-		.filter(child -> (child.getKey().startsWith("#") && Objects.equals(JSONUtils.getNormalizedKey(child.getKey()), jsonElement.getKey())))
-		.forEach(child -> {
-			if (child.getChildren().isEmpty())
-				xmlElement.setText(setValueXML(child));
-			else {
-				child.getChildren().stream().forEach(childChild -> xmlElement.addChild(convert(childChild)));
-			}
-		});
+    //SE IL VALORE DELL'ATTRIBUTO E' NULL, ALLORA ASSEGNA COME VALORE DELL'ATTRIBUTO UNA STRINGA VUOTA
+    private String setAttributeValueToXML(JSONElement e) {
+        Optional<Object> nullableValue = Optional.ofNullable(e.getValue());
+        return nullableValue.isPresent() ? e.getValue().toString() : "";
+    }
 
-		return xmlElement;
-	}
+    //CONTROLLO TRA CHIAVI CON LO STESSO VALORE (TRA NORMALIZZATE E NORMALI)
+    private Set<JSONElement> checkForDuplicates(JSONElement jsonElement) {
 
-	/**
-	 * torna true se uno dei figli � normale
-	 * - non ha il carattere @ iniziale
-	 * - se ha il # la chiave deve essere diversa da quella del padre
-	 *
-	 * @param child
-	 * @param parent
-	 * @return
-	 */
-	private boolean isNormalChild(JSONElement child, JSONElement parent) {
-		return !child.getKey().startsWith("@") && !child.getKey().startsWith("#") ||
-				(child.getKey().startsWith("#") && !Objects.equals(JSONUtils.getNormalizedKey(child.getKey()), parent.getKey()));
-	}
+        Set<JSONElement> set = new HashSet<>();
 
-	private boolean atLeastOneNormalChild(JSONElement e) {
-
-		return e.getChildren().stream()
-				.anyMatch(jsonChild -> isNormalChild(jsonChild, e));
-	}
-
-
-	private String setValueXML(JSONElement e) {
-
-		Optional<Object> nullableValue = Optional.ofNullable(e.getValue());
-		return  nullableValue.isPresent() ? e.getValue().toString() : "null";
-	}
-
-	/**
-	 * torna true se i figli 
-	 * - hanno figli
-	 * - il primo figlio ha chiave @ o # e va ignorata
-	 *
-	 * @param child
-	 * @return
-	 */
-	public boolean singleSpecialCharacterKey(List<JSONElement> child) {
-		return child.size() > 1 && child.stream().anyMatch(child1 ->
-		JSONUtils.getNormalizedKey((child1.getKey())).isEmpty());
-	}
-
-	public boolean noValidChildren(JSONElement jsonElement) {
-
-		return jsonElement.getChildren().stream().noneMatch(child -> JSONUtils.isValidKey(child.getKey()));
-	}
-
-	public boolean duplicateChildren(JSONElement e1, JSONElement e2) {
-		return (JSONUtils.getNormalizedKey(e1.getKey()).equals(e2.getKey()) && !e1.getKey().equals(e2.getKey()));
-
-	}
-	public boolean checkDuplicates(JSONElement jsonElement) {
-		boolean c = false;
-		for(JSONElement j : jsonElement.getChildren())
-			c = jsonElement.getChildren().stream().anyMatch( child-> duplicateChildren(child,j));
-		return c;
-	}
+        jsonElement.getChildren().stream().filter(el -> (el.getKey().startsWith("@") || el.getKey().startsWith("#")))
+                .forEach(el -> {
+                    for (JSONElement j : jsonElement.getChildren()) {
+                        if (JSONUtils.getNormalizedKey(el.getKey()).equals(j.getKey())) {
+                            set.add(el);
+                        }
+                    }
+                });
+        return set;
+    }
 }
-
-
-
