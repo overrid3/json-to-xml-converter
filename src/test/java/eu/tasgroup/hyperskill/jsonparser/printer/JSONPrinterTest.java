@@ -4,11 +4,11 @@ import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-class XMLtoJSONPrinterTest {
+class JSONPrinterTest {
 
-    XMLtoJSONPrinter sut=new XMLtoJSONPrinter();
+    JSONPrinter sut=new JSONPrinter();
 
     @DisplayName("prova di stampa")
     @Test
@@ -37,8 +37,19 @@ class XMLtoJSONPrinterTest {
         root.addChild(number);
         number.addChild(region);
         number.addChild(numberT);
+        
+        String expected = "{\n" + 
+        		"\t\"root\": {\n" + 
+        		"\t\t\"id\": \"23424\",\n" + 
+        		"\t\t\"number\": {\n" + 
+        		"\t\t\t\"@region\": \"Russia\",\n" + 
+        		"\t\t\t\"#number\": \"8-0-00-99-99\"\n" + 
+        		"\t\t}\n" + 
+        		"\t}\n" + 
+        		"}\n";
 
-        sut.print(first);
+        String actual = sut.print(first);
+        assertThat(actual).isEqualTo(expected);
     }
 
 }

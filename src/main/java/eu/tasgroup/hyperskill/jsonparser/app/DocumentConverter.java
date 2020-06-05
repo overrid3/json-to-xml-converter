@@ -4,8 +4,8 @@ import eu.tasgroup.hyperskill.jsonparser.converter.XMLToJSONConverter;
 import eu.tasgroup.hyperskill.jsonparser.file.FileManager;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
-import eu.tasgroup.hyperskill.jsonparser.printer.JSONtoXMLPrinter;
-import eu.tasgroup.hyperskill.jsonparser.printer.XMLtoJSONPrinter;
+import eu.tasgroup.hyperskill.jsonparser.printer.XMLPrinter;
+import eu.tasgroup.hyperskill.jsonparser.printer.JSONPrinter;
 import eu.tasgroup.hyperskill.jsonparser.traverse.JSONTraverser;
 import eu.tasgroup.hyperskill.jsonparser.converter.JSONToXMLConverter;
 import eu.tasgroup.hyperskill.jsonparser.traverse.XMLTraverser;
@@ -19,11 +19,11 @@ public class DocumentConverter {
 
     private JSONTraverser jsonTrv;
     private JSONToXMLConverter jsonConverter;
-    private JSONtoXMLPrinter jsonPrinter;
+    private XMLPrinter jsonPrinter;
 
     private XMLTraverser xmlTrv;
     private XMLToJSONConverter xmlConverter;
-    private XMLtoJSONPrinter xmlPrinter;
+    private JSONPrinter xmlPrinter;
 
     public DocumentConverter() {
 
@@ -31,16 +31,17 @@ public class DocumentConverter {
 
         jsonTrv =new JSONTraverser();
         jsonConverter=new JSONToXMLConverter();
-        jsonPrinter =new JSONtoXMLPrinter();
+        jsonPrinter =new XMLPrinter();
 
         xmlTrv=new XMLTraverser();
         xmlConverter=new XMLToJSONConverter();
-        xmlPrinter=new XMLtoJSONPrinter();
+        xmlPrinter=new JSONPrinter();
     }
 
     public void convertJsonToXml() throws IOException {
 
-        String JSONDestinationPath="C:\\Users\\donatom\\IdeaProjects\\BertucciolisConverter\\src\\test\\resources\\jsontext.txt";
+    	//classLoader
+        String JSONDestinationPath="D:\\GIT\\converter\\src\\test\\resources\\jsontext.txt";
 
         String text=fm.load("first.txt");
 
@@ -61,9 +62,11 @@ public class DocumentConverter {
 
             JSONElement jsonE=xmlConverter.convert(xmlE);
 
-            System.out.println(jsonE.getKey());
+            String xmlToJson = xmlPrinter.print(jsonE);
+            
+            File file = fm.writeOnXMLFile(JSONDestinationPath, xmlToJson);
 
-            //String xmlToJson=xmlPrinter.print(jsonE);
+
         }
 
 

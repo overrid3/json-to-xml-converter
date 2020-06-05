@@ -17,12 +17,11 @@ public class FileManager {
 		return IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
 	}
 	
-	public File writeOnXMLFile(String filePath, String stringToBeWritten) throws FileNotFoundException{
+	public File writeOnXMLFile(String filePath, String stringToBeWritten) throws IOException{
 
 		File file = new File(filePath);
 		try(FileWriter fw = new FileWriter(file);){
 			fw.write(stringToBeWritten);
-		}catch(IOException e){
 		}
 		
 		return file;

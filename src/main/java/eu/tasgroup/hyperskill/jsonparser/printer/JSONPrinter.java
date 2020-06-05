@@ -3,17 +3,17 @@ package eu.tasgroup.hyperskill.jsonparser.printer;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
-public class XMLtoJSONPrinter {
+public class JSONPrinter {
 
     private String returnString;
     private int tabulation;
 
-    public XMLtoJSONPrinter() {
+    public JSONPrinter() {
         tabulation = 0;
         returnString = "";
     }
 
-    public void print(JSONElement jsonE) {
+    public String print(JSONElement jsonE) {
         if (jsonE.getKey() != null) {
 
             printTabulation();
@@ -35,33 +35,41 @@ public class XMLtoJSONPrinter {
             printTabulation();
             printClosingParenthesis();
         }
+        
+        return returnString;
     }
 
     private void printValueAndComma(JSONElement e) {
 
-        System.out.println(e.getValue() + ",");
+    	returnString += e.getValue() + ",\n";
+//        System.out.println(e.getValue() + ",");
 
     }
 
     private void printValue(JSONElement jsonE) {
-        System.out.println(jsonE.getValue());
+    	returnString += jsonE.getValue() + "\n";
+//        System.out.println(jsonE.getValue());
     }
 
     private void printClosingParenthesis() {
-        System.out.println("}");
+    	returnString += "}\n";
+//        System.out.println("}");
     }
 
     private void printElementKey(JSONElement jsonE) {
-        System.out.print(jsonE.getKey() + ": ");
+    	returnString +=  jsonE.getKey() + ": ";
+//        System.out.print(jsonE.getKey() + ": ");
     }
 
     private void printTabulation() {
         for (int i = 0; i < tabulation; i++) {
-            System.out.print("\t");
+        	returnString += "\t";
+//            System.out.print("\t");
         }
     }
 
     private void printParenthesis() {
-        System.out.println("{");
+    	returnString += "{\n";
+//        System.out.println("{");
     }
 }

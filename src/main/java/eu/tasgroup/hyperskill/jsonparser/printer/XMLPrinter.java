@@ -6,12 +6,12 @@ import java.util.Objects;
 
 import static eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor.XMLOBJECT_CANNOT_BE_NULL;
 
-public class JSONtoXMLPrinter {
+public class XMLPrinter {
 
     private int tabCount;
     private String returnString;
 
-    public JSONtoXMLPrinter() {
+    public XMLPrinter() {
         tabCount=0;
         returnString = "";
     }

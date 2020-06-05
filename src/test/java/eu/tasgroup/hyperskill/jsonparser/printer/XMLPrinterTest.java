@@ -4,16 +4,17 @@ import static eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor.XMLOB
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.assertj.XmlAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class JSONtoXMLPrinterTest {
+class XMLPrinterTest {
 
-	JSONtoXMLPrinter sut = new JSONtoXMLPrinter();
+	XMLPrinter sut = new XMLPrinter();
 
 	@Test
-	@DisplayName("null single attribute")
+	@DisplayName("null element")
 	public void nullTest() {
 
 		assertThatThrownBy(() -> sut.printToXMLFormat(null))
@@ -49,10 +50,12 @@ class JSONtoXMLPrinterTest {
 				"\t\t<mannaggia>\n" + 
 				"\t\t\t<port>pol</port>\n" + 
 				"\t\t</mannaggia>\n" + 
-				"\t</region>\n" + 
+				"</region>\n" + 
 				"</transaction>\n";
 		String actual = sut.printToXMLFormat(root);
-		assertThat(actual).isEqualTo(expected);
+//		assertThat(actual).isEqualTo(expected);
+
+	XmlAssert.assertThat(actual).and(expected).normalizeWhitespace().areIdentical();
 	}
 	
 	@Test
