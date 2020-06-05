@@ -61,9 +61,9 @@ public class DocumentConverter {
 
             JSONElement jsonE=xmlConverter.convert(xmlE);
 
-            System.out.println(jsonE.getChildren().get(8).getChildren().get(3).getChildren().get(0).getValue());
+            System.out.println(jsonE.getKey());
 
-            String xmlToJson=xmlPrinter.print(jsonE);
+            //String xmlToJson=xmlPrinter.print(jsonE);
         }
 
 
