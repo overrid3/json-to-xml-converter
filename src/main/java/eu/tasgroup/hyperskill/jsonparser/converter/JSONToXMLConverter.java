@@ -6,7 +6,7 @@ import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
 import java.util.*;
 
-public class JSONConverter {
+public class JSONToXMLConverter {
 
     public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
 

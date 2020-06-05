@@ -1,6 +1,6 @@
 package eu.tasgroup.hyperskill.jsonparser.visitor;
 
-import eu.tasgroup.hyperskill.jsonparser.converter.JSONConverter;
+import eu.tasgroup.hyperskill.jsonparser.converter.JSONToXMLConverter;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,11 +12,11 @@ import static org.assertj.core.api.Assertions.tuple;
 
 class JSONConverterTest {
 
-    private JSONConverter sut;
+    private JSONToXMLConverter sut;
 
     @BeforeEach
     public void setUp() {
-        sut = new JSONConverter();
+        sut = new JSONToXMLConverter();
     }
 
     @DisplayName("Testing conversion of a correctly formatted XML element")

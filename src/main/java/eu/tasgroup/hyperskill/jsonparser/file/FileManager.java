@@ -17,7 +17,7 @@ public class FileManager {
 		return IOUtils.toString(resourceAsStream, StandardCharsets.UTF_8);
 	}
 	
-	public File writeOnFile(String filePath, String stringToBeWritten) throws FileNotFoundException{
+	public File writeOnXMLFile(String filePath, String stringToBeWritten) throws FileNotFoundException{
 
 		File file = new File(filePath);
 		try(FileWriter fw = new FileWriter(file);){

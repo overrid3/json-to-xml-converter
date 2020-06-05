@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JSONElement implements TreeElement<JSONElement> {
+
 	private String key;
 	private Object value;
 	private List<JSONElement> children;

@@ -1,11 +1,13 @@
 package eu.tasgroup.hyperskill.jsonparser.utils;
 
+import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
+
 import java.util.regex.Pattern;
 
 public class XMLUtils {
 	
-	 static String regular="<\\/*(\\w+)((\\s\\w+\\s?=\\s?\"\\w+\")*)>?((}?>}?|.|\\r|\\n)+)\\s*";
-	    static String openClosed="<(\\w+)((\\s\\w+\\s?=\\s?\"\\w+\")*)\\s?\\/>?((}?>}?|.|\\r|\\n)+)\\s*";
+	 static String regular="^<\\/*(\\w+)((\\s\\w+=\"\\w+\")*)>((}?>}?|.|\\r|\\n)*)";
+	    static String openClosed="^<(\\w+)((\\s\\w+=\"\\w+\")*)\\s?\\/>((}?>}?|.|\\r|\\n)*)";
 	    public static Pattern regularPattern=Pattern.compile(regular);
 	    public static Pattern openClosedPattern=Pattern.compile(openClosed);
 
@@ -19,5 +21,9 @@ public class XMLUtils {
 	        }
 	        return "tagValue";
 	    }
+
+	    public static boolean hasNoChildren(XMLElement e){
+	    	return e.getChildren().isEmpty();
+		}
 
 }
