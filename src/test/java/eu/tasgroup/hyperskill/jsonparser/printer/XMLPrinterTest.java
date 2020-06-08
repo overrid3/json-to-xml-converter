@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.assertj.XmlAssert;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class XMLPrinterTest {
@@ -21,7 +20,7 @@ class XMLPrinterTest {
 		.isInstanceOf(NullPointerException.class)
 		.hasMessage(XMLOBJECT_CANNOT_BE_NULL);
 	}
-	
+
 	@Test
 	@DisplayName("prova stampa un elemento con figli")
 	public void printTry(){
@@ -43,21 +42,19 @@ class XMLPrinterTest {
 		transaction.addChild(region);
 		region.addChild(e4);
 		e4.addChild(e5);
-		String expected = "<transaction>\n" + 
-				"\t<id mannaggia=\"mannaggia\" ciao=\"ciao\">385938</id>\n" + 
-				"\t<fre />\n" + 
-				"\t<region>\n" + 
-				"\t\t<mannaggia>\n" + 
-				"\t\t\t<port>pol</port>\n" + 
-				"\t\t</mannaggia>\n" + 
-				"</region>\n" + 
-				"</transaction>\n";
+		String expected = "<transaction>" + 
+				"<id mannaggia=\"mannaggia\" ciao=\"ciao\">385938</id>" + 
+				"<fre />" + 
+				"<region>" + 
+				"<mannaggia>" + 
+				"<port>pol</port>" + 
+				"</mannaggia>" + 
+				"</region>" + 
+				"</transaction>";
 		String actual = sut.printToXMLFormat(root);
-//		assertThat(actual).isEqualTo(expected);
-
-	XmlAssert.assertThat(actual).and(expected).normalizeWhitespace().areIdentical();
+		XmlAssert.assertThat(actual).and(expected).normalizeWhitespace().areIdentical();
 	}
-	
+
 	@Test
 	@DisplayName("prova stampa due elementi")
 	public void printTry2(){
@@ -72,15 +69,16 @@ class XMLPrinterTest {
 		root.addChild(meta);
 		transaction.addChild(id);
 		meta.addChild(version);
-		
-		String expected = "<transaction>\n" + 
-				"\t<id>385938</id>\n" + 
-				"</transaction>\n" + 
-				"<meta>\n" + 
-				"\t<version>0.01</version>\n" + 
-				"</meta>\n";
+
+		String expected = "<root><transaction>" + 
+				"<id>385938</id>" + 
+				"</transaction>" + 
+				"<meta>" + 
+				"<version>0.01</version>" + 
+				"</meta>" + 
+				"</root>";
 		String actual = sut.printToXMLFormat(root);
-		assertThat(actual).isEqualTo(expected);
+		XmlAssert.assertThat(actual).and(expected).normalizeWhitespace().areIdentical();
 	}
 
 }

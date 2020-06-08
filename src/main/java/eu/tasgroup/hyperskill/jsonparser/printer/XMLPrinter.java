@@ -8,71 +8,84 @@ import static eu.tasgroup.hyperskill.jsonparser.visitor.JSONElementVisitor.XMLOB
 
 public class XMLPrinter {
 
-    private int tabCount;
-    private String returnString;
+	private int tabCount;
+	private String returnString;
 
-    public XMLPrinter() {
-        tabCount=0;
-        returnString = "";
-    }
+	public XMLPrinter() {
+		tabCount=0;
+		returnString = "";
+	}
 
-    public String printToXMLFormat(XMLElement e){
+	public String printToXMLFormat(XMLElement e){
 
-        Objects.requireNonNull(e, XMLOBJECT_CANNOT_BE_NULL);
+		Objects.requireNonNull(e, XMLOBJECT_CANNOT_BE_NULL);
+		if(e.getTagName()==null) {
+			if(e.getChildren().size()>1)
+				printRoot(e);
+			else
+				e.getChildren().stream().forEach(child-> { printToXMLFormat(child); printNormalClosingTag(child); });
+		}
+		else{
 
-        if(e.getTagName() != null){
+			printTabulation();
+			tabCount+=1;
 
-            printTabulation();
-            tabCount+=1;
+			printTagName(e);
+			printAttributes(e);
 
-            printTagName(e);
-            printAttributes(e);
-            
-            if (e.getText()==null){
-                printNullClosingTag();
-            }
-            else {
-                printEnd(e);
-                printText(e);
-            }
-        }
+			if (e.getText()==null){
+				printNullClosingTag();
+			}
+			else {
+				printEnd(e);
+				printText(e);
+			}
+			e.getChildren().stream().forEach(child-> { printToXMLFormat(child); printNormalClosingTag(child); });
+			tabCount-=1;
+		}
 
-        e.getChildren().stream().forEach(child-> { printToXMLFormat(child); printNormalClosingTag(child); });
-        tabCount-=1;
-       return returnString;
-        
-    }
+		return returnString;
 
-    private void printTagName(XMLElement e) {
-    	returnString += "<"+e.getTagName();
-    }
+	}
 
-    private void printAttributes(XMLElement e) {
-            e.getAttributes().entrySet().stream().forEach(el -> returnString += " " + el.getKey() + "=\"" + el.getValue()+"\"");//System.out.print(" " + el.getKey() + "=\"" + el.getValue()+"\""));
-    }
-    
-    private void printEnd(XMLElement e) {
-    	returnString += e.getChildren().isEmpty() ? ">" : ">\n";
-    }
+	private void printRoot(XMLElement e) {
+		returnString += "<root>\n";
+		tabCount += 1;
+		e.getChildren().stream().forEach(child-> { printToXMLFormat(child); printNormalClosingTag(child); });
+		tabCount-=1;
+		returnString += "</root>\n";
+	}
 
-    private void printText(XMLElement e) {
-    	returnString += e.getText();
-    }
+	private void printTagName(XMLElement e) {
+		returnString += "<"+e.getTagName();
+	}
 
-    private void printNullClosingTag() {
-    	returnString += " />\n";
-    }
+	private void printAttributes(XMLElement e) {
+		e.getAttributes().entrySet().stream().forEach(el -> returnString += " " + el.getKey() + "=\"" + el.getValue()+"\"");//System.out.print(" " + el.getKey() + "=\"" + el.getValue()+"\""));
+	}
 
-    private void printNormalClosingTag(XMLElement e) {
-        if (!e.getChildren().isEmpty()){
-            printTabulation();
-        }
-        returnString += e.getText()!=null ? "</"+e.getTagName()+">\n" : "";
-    }
+	private void printEnd(XMLElement e) {
+		returnString += e.getChildren().isEmpty() ? ">" : ">\n";
+	}
 
-    private void printTabulation() {
-    	for(int i=0;i<tabCount; i++)
-    		returnString +="\t";
-    }
+	private void printText(XMLElement e) {
+		returnString += e.getText();
+	}
+
+	private void printNullClosingTag() {
+		returnString += " />\n";
+	}
+
+	private void printNormalClosingTag(XMLElement e) {
+		if (!e.getChildren().isEmpty()){
+			printTabulation();
+		}
+		returnString += e.getText()!=null ? "</"+e.getTagName()+">\n" : "";
+	}
+
+	private void printTabulation() {
+		for(int i=0;i<tabCount; i++)
+			returnString +="\t";
+	}
 
 }

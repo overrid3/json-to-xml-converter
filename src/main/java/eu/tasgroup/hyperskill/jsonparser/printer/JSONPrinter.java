@@ -22,7 +22,7 @@ public class JSONPrinter {
         }
 
         if (JSONUtils.hasNoChildren(jsonE)) {
-            if (jsonE.getKey().startsWith("\"#")) {
+            if (jsonE.getKey().startsWith("\"#") || !isNotLastChild(jsonE)) {
                 printValue(jsonE);
             } else {
                 printValueAndComma(jsonE);
@@ -33,8 +33,8 @@ public class JSONPrinter {
             jsonE.getChildren().stream().forEach(el -> print(el));
             tabulation -= 1;
             printTabulation();
-            printClosingParenthesis();
-        }
+           printClosingParenthesis(jsonE);
+            }
         
         return returnString;
     }
@@ -42,34 +42,37 @@ public class JSONPrinter {
     private void printValueAndComma(JSONElement e) {
 
     	returnString += e.getValue() + ",\n";
-//        System.out.println(e.getValue() + ",");
 
     }
 
     private void printValue(JSONElement jsonE) {
     	returnString += jsonE.getValue() + "\n";
-//        System.out.println(jsonE.getValue());
     }
 
-    private void printClosingParenthesis() {
-    	returnString += "}\n";
-//        System.out.println("}");
+    private boolean isNotLastChild(JSONElement jsonE) {
+    	int size = jsonE.getParent().getChildren().size();
+    	return size!=1 && !jsonE.equals(jsonE.getParent().getChildren().get(size-1));
+    }
+    private String chooseParenthesis(JSONElement jsonE) {
+    	
+    	return isNotLastChild(jsonE) ? "},\n" : "}\n";
+    }
+    
+    private void printClosingParenthesis(JSONElement jsonE) {
+    	returnString +=  (jsonE.getKey()!=null) ? chooseParenthesis(jsonE) : "}\n";
     }
 
     private void printElementKey(JSONElement jsonE) {
     	returnString +=  jsonE.getKey() + ": ";
-//        System.out.print(jsonE.getKey() + ": ");
     }
 
     private void printTabulation() {
         for (int i = 0; i < tabulation; i++) {
         	returnString += "\t";
-//            System.out.print("\t");
         }
     }
 
     private void printParenthesis() {
     	returnString += "{\n";
-//        System.out.println("{");
     }
 }

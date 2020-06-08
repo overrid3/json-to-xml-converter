@@ -4,7 +4,6 @@ package eu.tasgroup.hyperskill.jsonparser.file;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +26,4 @@ public class FileManager {
 		return file;
 	}
 	
-	
-/*public void writeOnFile(String filePath, String stringToBeWritten) {
-		
-		try (PrintWriter out = new PrintWriter(filePath)) {
-		    out.println(stringToBeWritten);
-		}catch(IOException e){
-		}
-		
-	}
-*/}
+}
