@@ -56,6 +56,7 @@ public class JSONElement implements TreeElement<JSONElement> {
 	}
 
 	public void addChild(JSONElement element){
+		element.setParent(this);
 		this.children.add(element);
 	}
 

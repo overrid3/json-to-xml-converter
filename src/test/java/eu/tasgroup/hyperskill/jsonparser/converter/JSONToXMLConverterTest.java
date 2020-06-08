@@ -1,4 +1,4 @@
-package eu.tasgroup.hyperskill.jsonparser.visitor;
+package eu.tasgroup.hyperskill.jsonparser.converter;
 
 import eu.tasgroup.hyperskill.jsonparser.converter.JSONToXMLConverter;
 import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-class JSONConverterTest {
+class JSONToXMLConverterTest {
 
     private JSONToXMLConverter sut;
 

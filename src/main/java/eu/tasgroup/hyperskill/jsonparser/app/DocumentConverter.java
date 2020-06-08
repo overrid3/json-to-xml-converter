@@ -27,43 +27,40 @@ public class DocumentConverter {
 
     public DocumentConverter() {
 
-        fm=new FileManager();
+        fm = new FileManager();
 
-        jsonTrv =new JSONTraverser();
-        jsonConverter=new JSONToXMLConverter();
-        jsonPrinter =new XMLPrinter();
+        jsonTrv = new JSONTraverser();
+        jsonConverter = new JSONToXMLConverter();
+        jsonPrinter = new XMLPrinter();
 
-        xmlTrv=new XMLTraverser();
-        xmlConverter=new XMLToJSONConverter();
-        xmlPrinter=new JSONPrinter();
+        xmlTrv = new XMLTraverser();
+        xmlConverter = new XMLToJSONConverter();
+        xmlPrinter = new JSONPrinter();
     }
 
     public void convertJsonToXml() throws IOException {
 
-    	//classLoader
-        String JSONDestinationPath="D:\\GIT\\converter\\src\\test\\resources\\jsontext.txt";
+        //classLoader
+        String JSONDestinationPath = "D:\\GIT\\converter\\src\\test\\resources\\jsontext.txt";
 
-        String text=fm.load("first.txt");
+        String text = fm.load("first.txt");
 
         if (text.startsWith("{")) {
 
-            JSONElement jsonE= jsonTrv.traverse(text);
+            JSONElement jsonE = jsonTrv.traverse(text);
 
-            XMLElement xmlE=jsonConverter.convert(jsonE);
+            XMLElement xmlE = jsonConverter.convert(jsonE);
 
             String jsonToXml = jsonPrinter.printToXMLFormat(xmlE);
 
             File file = fm.writeOnXMLFile(JSONDestinationPath, jsonToXml);
-        }
+        } else {
 
-        else {
-
-            XMLElement xmlE=xmlTrv.traverse(text);
-
-            JSONElement jsonE=xmlConverter.convert(xmlE);
+            XMLElement xmlE = xmlTrv.traverse(text);
+            JSONElement jsonE = xmlConverter.convert(xmlE);
 
             String xmlToJson = xmlPrinter.print(jsonE);
-            
+
             File file = fm.writeOnXMLFile(JSONDestinationPath, xmlToJson);
 
 

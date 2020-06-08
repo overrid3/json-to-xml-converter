@@ -1,16 +1,15 @@
 package eu.tasgroup.hyperskill.jsonparser.traverse;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import eu.tasgroup.hyperskill.jsonparser.model.XMLElement;
 import eu.tasgroup.hyperskill.jsonparser.utils.XMLUtils;
 
 public class XMLTraverser {
+
+    private final String XMLTEXT_CAN_T_BE_NULL ="Xml text can't be null or empty" ;
 
     private final Stack<XMLElement> tagsForPath;
 
@@ -22,9 +21,7 @@ public class XMLTraverser {
 
     public XMLElement traverse(String xmlText){
 
-        if (xmlText.equals("")){
-            return null;
-        }
+        Objects.requireNonNull(xmlText, XMLTEXT_CAN_T_BE_NULL);
 
         String res= XMLUtils.evaluateString(xmlText);
 
