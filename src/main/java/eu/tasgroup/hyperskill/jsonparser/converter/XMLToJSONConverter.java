@@ -8,79 +8,73 @@ import java.util.Objects;
 
 public class XMLToJSONConverter {
 
-    public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
+	public static final String JSON_ELEMENT_CAN_T_BE_NULL = "JSON element can't be null";
 
-    public JSONElement convert(XMLElement e) {
+	public JSONElement convert(XMLElement e) {
+		Objects.requireNonNull(e, JSON_ELEMENT_CAN_T_BE_NULL);
 
-        Objects.requireNonNull(e, JSON_ELEMENT_CAN_T_BE_NULL);
+		JSONElement jsonElement = new JSONElement();
+		jsonElement.addChild(convertXML(e));
 
-        JSONElement jsonElement = new JSONElement();
+		return jsonElement;
 
-        jsonElement.setKey("\"" + e.getTagName() + "\"");
+	}
 
-        /*e.getAttributes().entrySet().stream().forEach(el -> jsonElement.addChild(new JSONElement("\"@"+el.getKey()+"\"", "\"" + el.getValue() + "\"")));
+	private JSONElement convertXML(XMLElement e) {
 
-        if (e.getText() == null) {
-            jsonElement.addChild(new JSONElement("\"#"+e.getTagName()+"\"",null));
-        } else {
-            if (e.getChildren().isEmpty()){
-                jsonElement.setValue("\""+e.getText()+"\"");
-            } else {
-                jsonElement.setValue("");
-                e.getChildren().stream().forEach(el->jsonElement.addChild(convert(el)));
-            }
-        }*/
+		Objects.requireNonNull(e, JSON_ELEMENT_CAN_T_BE_NULL);
 
-        if (e.getAttributes().isEmpty()) {
-            checkAndAssignValue(e, jsonElement);
-        } else {
-            jsonElement.setValue("");
-            e.getAttributes().entrySet().stream().forEach(el -> jsonElement.addChild(new JSONElement(constructAttributeKey(el.getKey()), el.getValue())));
+		JSONElement jsonElement = new JSONElement();
 
-            if (e.getText() == null) {
-                jsonElement.addChild(new JSONElement(constructTagString(e.getTagName()), null));
-            } else {
-                jsonElement.addChild(new JSONElement(constructTagString(e.getTagName()), constructText(e.getText())));
-            }
-        }
+		jsonElement.setKey("\"" + e.getTagName() + "\"");
 
-        if (!XMLUtils.hasNoChildren(e)) {
-            e.getChildren().stream().forEach(el -> jsonElement.addChild(convert(el)));
-        }
+		if (e.getAttributes().isEmpty()) {
+			
+			jsonElement.setValue(checkValue(e));
+		} else {
+			jsonElement.setValue("");
+			e.getAttributes().entrySet().stream().forEach(el -> jsonElement.addChild(new JSONElement(constructAttributeKey(el.getKey()), el.getValue())));
 
-        return jsonElement;
-    }
+			if(!XMLUtils.hasNoChildren(e)) {
+				JSONElement c = new JSONElement("\"#"+e.getTagName() + "\"","");
+				jsonElement.addChild(c);
+				e.getChildren().stream().forEach(child -> c.addChild(convertXML(child)));
+			}else {
+				jsonElement.addChild(new JSONElement(constructTagString(e.getTagName()), checkValue(e)));
+			}
+			
+		}
+		if (!XMLUtils.hasNoChildren(e)) {
+			e.getChildren().stream().forEach(el -> jsonElement.addChild(convertXML(el)));
+		}
+		return jsonElement;
+	}
 
-    private void checkAndAssignValue(XMLElement e, JSONElement j) {
+	private String checkValue(XMLElement e) {
 
-        if (e.getText() == null) {
-            j.setValue(null);
-        } else if (!e.getText().isEmpty()) {
-            j.setValue(constructText(e.getText()));
-        } else {
-            j.setValue("");
-        }
-    }
+		if (e.getText() == null) {
+			 return null;
+		} else if (!e.getText().isEmpty()) {
+			return e.getText();
+		} 
+		return "";
+		
+	}
 
-    public String constructAttributeKey(String key){
-        StringBuilder stringBuilder=new StringBuilder(key);
+	public String constructAttributeKey(String key){
+		StringBuilder stringBuilder=new StringBuilder(key);
 
-        stringBuilder.insert(0,'@');
+		stringBuilder.insert(0,'@');
 
-        return "\""+stringBuilder.toString()+"\"";
-    }
+		return "\""+stringBuilder.toString()+"\"";
+	}
 
-    public String constructTagString(String value){
+	public String constructTagString(String value){
 
-        StringBuilder stringBuilder=new StringBuilder(value);
+		StringBuilder stringBuilder=new StringBuilder(value);
 
-        stringBuilder.insert(0,'#');
+		stringBuilder.insert(0,'#');
 
-        return "\"" + stringBuilder.toString() + "\"";
-    }
-
-    public String constructText(String text){
-        return "\""+text+"\"";
-    }
-
+		return "\"" + stringBuilder.toString() + "\"";
+	}
 }

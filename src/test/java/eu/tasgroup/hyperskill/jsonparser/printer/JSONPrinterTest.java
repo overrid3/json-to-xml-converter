@@ -31,7 +31,7 @@ class JSONPrinterTest {
         JSONElement root=new JSONElement("\"root\"","");
         JSONElement id= new JSONElement("\"id\"",23424);
         JSONElement number=new JSONElement("\"number\"","");
-        JSONElement region=new JSONElement("\"@region\"","\"Russia\"");
+        JSONElement region=new JSONElement("\"@region\"","Russia");
         JSONElement numberT=new JSONElement("\"#number\"",null);
 
         first.addChild(root);
@@ -51,7 +51,6 @@ class JSONPrinterTest {
         		"}";
 
         String actual = sut.print(first);
-        System.out.println(actual);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.LENIENT);
     }
 
@@ -77,8 +76,8 @@ class JSONPrinterTest {
         JSONElement transaction=new JSONElement("\"transaction\"","");
         JSONElement id= new JSONElement("\"id\"",23424);
         JSONElement number=new JSONElement("\"number\"","");
-        JSONElement region=new JSONElement("\"@region\"","\"Russia\"");
-        JSONElement numberT=new JSONElement("\"#number\"","\"8-900-000-00-00\"");
+        JSONElement region=new JSONElement("\"@region\"","Russia");
+        JSONElement numberT=new JSONElement("\"#number\"","8-900-000-00-00");
         JSONElement amount = new JSONElement("\"amount\"",null);
         JSONElement meta=new JSONElement("\"meta\"","");
         JSONElement version = new JSONElement("\"version\"",0.01);
@@ -108,7 +107,6 @@ class JSONPrinterTest {
         		"}";
 
         String actual = sut.print(root);
-        System.out.println(actual);
         JSONAssert.assertEquals(expected, actual, JSONCompareMode.LENIENT);
     }
 

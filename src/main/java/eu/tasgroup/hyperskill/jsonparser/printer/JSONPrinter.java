@@ -5,74 +5,81 @@ import eu.tasgroup.hyperskill.jsonparser.utils.JSONUtils;
 
 public class JSONPrinter {
 
-    private String returnString;
-    private int tabulation;
+	private String returnString;
+	private int tabulation;
 
-    public JSONPrinter() {
-        tabulation = 0;
-        returnString = "";
-    }
+	public JSONPrinter() {
+		tabulation = 0;
+		returnString = "";
+	}
 
-    public String print(JSONElement jsonE) {
-        if (jsonE.getKey() != null) {
+	public String print(JSONElement jsonE) {
+		if (jsonE.getKey() != null) {
 
-            printTabulation();
+			printTabulation();
 
-            printElementKey(jsonE);
-        }
+			printElementKey(jsonE);
+		}
 
-        if (JSONUtils.hasNoChildren(jsonE)) {
-            if (jsonE.getKey().startsWith("\"#") || !isNotLastChild(jsonE)) {
-                printValue(jsonE);
-            } else {
-                printValueAndComma(jsonE);
-            }
-        } else {
-            printParenthesis();
-            tabulation += 1;
-            jsonE.getChildren().stream().forEach(el -> print(el));
-            tabulation -= 1;
-            printTabulation();
-           printClosingParenthesis(jsonE);
-            }
-        
-        return returnString;
-    }
+		if (JSONUtils.hasNoChildren(jsonE)) {
+			if (jsonE.getKey().startsWith("\"#") || !isNotLastChild(jsonE)) {
+				printValue(jsonE);
+			} else {
+				printValueAndComma(jsonE);
+			}
+		} else {
+			printParenthesis();
+			tabulation += 1;
+			jsonE.getChildren().stream().forEach(el -> print(el));
+			tabulation -= 1;
+			printTabulation();
+			printClosingParenthesis(jsonE);
+		}
 
-    private void printValueAndComma(JSONElement e) {
+		return returnString;
+	}
 
-    	returnString += e.getValue() + ",\n";
+	public String convertValueToString(Object value) {
+		return (value instanceof String) ? "\"" + value + "\"" : value.toString();
+	}
 
-    }
+	private String insertValue(JSONElement jsonElement) {
+		return jsonElement.getValue()==null ? "null" : convertValueToString(jsonElement.getValue());
+	}
+	
+	private void printValueAndComma(JSONElement e) {
+		returnString += insertValue(e) + ",\n";
 
-    private void printValue(JSONElement jsonE) {
-    	returnString += jsonE.getValue() + "\n";
-    }
+	}
 
-    private boolean isNotLastChild(JSONElement jsonE) {
-    	int size = jsonE.getParent().getChildren().size();
-    	return size!=1 && !jsonE.equals(jsonE.getParent().getChildren().get(size-1));
-    }
-    private String chooseParenthesis(JSONElement jsonE) {
-    	
-    	return isNotLastChild(jsonE) ? "},\n" : "}\n";
-    }
-    
-    private void printClosingParenthesis(JSONElement jsonE) {
-    	returnString +=  (jsonE.getKey()!=null) ? chooseParenthesis(jsonE) : "}\n";
-    }
+	private void printValue(JSONElement jsonE) {
+		returnString += insertValue(jsonE) + "\n";
+	}
 
-    private void printElementKey(JSONElement jsonE) {
-    	returnString +=  jsonE.getKey() + ": ";
-    }
+	private boolean isNotLastChild(JSONElement jsonE) {
+		int size = jsonE.getParent().getChildren().size();
+		return size!=1 && !jsonE.equals(jsonE.getParent().getChildren().get(size-1));
+	}
+	private String chooseParenthesis(JSONElement jsonE) {
 
-    private void printTabulation() {
-        for (int i = 0; i < tabulation; i++) {
-        	returnString += "\t";
-        }
-    }
+		return isNotLastChild(jsonE) ? "},\n" : "}\n";
+	}
 
-    private void printParenthesis() {
-    	returnString += "{\n";
-    }
+	private void printClosingParenthesis(JSONElement jsonE) {
+		returnString +=  (jsonE.getKey()!=null) ? chooseParenthesis(jsonE) : "}\n";
+	}
+
+	private void printElementKey(JSONElement jsonE) {
+		returnString +=  jsonE.getKey() + ": ";
+	}
+
+	private void printTabulation() {
+		for (int i = 0; i < tabulation; i++) {
+			returnString += "\t";
+		}
+	}
+
+	private void printParenthesis() {
+		returnString += "{\n";
+	}
 }

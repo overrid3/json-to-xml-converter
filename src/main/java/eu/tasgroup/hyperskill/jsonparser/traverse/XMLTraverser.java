@@ -64,7 +64,7 @@ public class XMLTraverser {
 
             if (m.find()){
                 XMLElement e=buildElement(m.group(1), m.group(2).trim());
-                e.setText("null"); //SOSTITUIRE CON NULL (NON STRINGA)
+                e.setText(null); 
                 tagsForPath.peek().addChild(e);
             }
             return traverse(xmlText.substring(xmlText.indexOf(">")+1).trim());
