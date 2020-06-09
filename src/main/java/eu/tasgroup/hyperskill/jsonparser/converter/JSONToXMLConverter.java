@@ -24,6 +24,16 @@ public class JSONToXMLConverter {
         } else if (isCorretlyFormattedXMLElement(jsonElement)) {
             checkForText(xmlElement, jsonElement); //CONTROLLO SUL TEXT
             checkForAttributesToInsert(xmlElement, jsonElement); //CONTROLLO SUGLI ATTRIBUTI (VIENE ESEGUITO ANCHE SE NON CI SONO
+
+            JSONElement j=JSONUtils.getHashChild(jsonElement);
+            if (!JSONUtils.hasNoChildren(j)){
+                j.getChildren().stream().forEach(el -> xmlElement.addChild(convert(el)));
+            }
+            /*if (xmlElement.getText().isEmpty()){
+                jsonElement.getChildren().stream()
+                        .filter(child -> !JSONUtils.illegalInitialAndOnlyCharacter(child.getKey()))
+                        .forEach(child -> xmlElement.addChild(convert(child)));
+            }*/
         } else {
             Set<JSONElement> set = checkForDuplicates(jsonElement);
             if (!set.isEmpty()) {
@@ -42,7 +52,7 @@ public class JSONToXMLConverter {
         return JSONUtils.hasExactlyOneChildWithHashKey(e)
                 && !JSONUtils.hasChildWithoutSpecialCharacter(e)
                 && !JSONUtils.hasEmptyOrIllegalKey(e)
-                && !JSONUtils.hasNotEmptyChildren(e);
+                && !JSONUtils.atKeyElementHasNotEmptyChildren(e);
     }
 
     //METODO PER VEDERE SE L'ELEMENTO CON CHIAVE #KEY NON HA VALORE NULLO

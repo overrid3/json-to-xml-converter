@@ -59,38 +59,6 @@ class JSONToXMLConverterTest {
         assertThat(e.getChildren()).isEmpty();
     }
 
-    @DisplayName("Conversion test of a JSON element with complex hash key child")
-    @Test
-    public void convertTest3() {
-
-        //"key":{"#key":{"@e1":orgodo,"#e2":"mae"}, "@kao":"hur"}
-
-        JSONElement e1 = new JSONElement("key", null);
-        JSONElement e2 = new JSONElement("#key", null);
-        JSONElement e3 = new JSONElement("@kao", "hur");
-        JSONElement e4 = new JSONElement("@e1", "orgoda");
-        JSONElement e5 = new JSONElement("@e2", "mae");
-
-        e1.addChild(e2);
-        e1.addChild(e3);
-        e2.addChild(e4);
-        e2.addChild(e5);
-
-        XMLElement e = sut.convert(e1);
-
-        assertThat(e.getTagName()).isEqualTo("key");
-        assertThat(e.getText()).isEmpty();
-        assertThat(e.getAttributes()).isEmpty();
-        assertThat(e.getChildren())
-                .extracting("tagName", "text", "parent")
-                .containsExactly(tuple("key", "", e),
-                        tuple("kao", "hur", e));
-        assertThat(e.getChildren().get(0).getChildren())
-                .extracting("tagName", "text", "parent")
-                .containsExactly(tuple("e1", "orgoda", e.getChildren().get(0)),
-                        tuple("e2", "mae", e.getChildren().get(0)));
-    }
-
     @DisplayName("Testing conversion of nested JSON objects")
     @Test
     public void convertTest4() {
@@ -328,9 +296,9 @@ class JSONToXMLConverterTest {
         }*/
 
         JSONElement e1 = new JSONElement("inner13", null);
-        JSONElement e2 = new JSONElement("@invalid_attr", null);
+        JSONElement e2 = new JSONElement("@invalid_attr", "");
         JSONElement e3 = new JSONElement("some_key", "some value");
-        JSONElement e4 = new JSONElement("#inner13", null);
+        JSONElement e4 = new JSONElement("#inner13", "");
         JSONElement e5 = new JSONElement("key", "value");
 
         e1.addChild(e2);
@@ -403,4 +371,76 @@ class JSONToXMLConverterTest {
                         tuple("ciao1", "ciao1", e.getChildren().get(1)));
     }
 
+    @DisplayName("Particular case: hash key has children")
+    @Test
+    void converterTest15() {
+
+        /*{
+            "elem1": {
+            "@attr1": "val1",
+                    "@attr2": "val2",
+                    "#elem1": {
+                "elem2": {
+                    "@attr3": "val3",
+                            "@attr4": "val4",
+                            "#elem2": "Value1"
+                },
+                "elem3": {
+                    "@attr5": "val5",
+                            "@attr6": "val6",
+                            "#elem3": "Value2"
+                }
+            }
+        }
+        }*/
+
+        JSONElement root=new JSONElement(null,"");
+        JSONElement elem1=new JSONElement("element1","");
+        JSONElement attr1=new JSONElement("@attr1","val1");
+        JSONElement attr2=new JSONElement("@attr2","val2");
+        JSONElement hashelement1=new JSONElement("#element1","");
+        JSONElement element2=new JSONElement("element2","");
+        JSONElement attr3=new JSONElement("@attr3","val3");
+        JSONElement attr4=new JSONElement("@attr4","val4");
+        JSONElement hashelement2=new JSONElement("#element2","value2");
+        JSONElement element3=new JSONElement("element3","");
+        JSONElement attr5=new JSONElement("@attr5","val5");
+        JSONElement attr6=new JSONElement("@attr6","val6");
+        JSONElement hashelement3=new JSONElement("#element3","value2");
+
+        root.addChild(elem1);
+        elem1.addChild(attr1);
+        elem1.addChild(attr2);
+        elem1.addChild(hashelement1);
+        hashelement1.addChild(element2);
+        element2.addChild(attr3);
+        element2.addChild(attr4);
+        element2.addChild(hashelement2);
+        hashelement1.addChild(element3);
+        element3.addChild(attr5);
+        element3.addChild(attr6);
+        element3.addChild(hashelement3);
+
+        XMLElement e=sut.convert(root);
+
+        assertThat(e.getTagName()).isNull();
+        assertThat(e.getChildren())
+                .extracting("tagName","text","parent")
+                    .containsExactly(tuple("element1","",e));
+        assertThat(e.getChildren().get(0).getAttributes()).containsEntry("attr1","val1");
+        assertThat(e.getChildren().get(0).getAttributes()).containsEntry("attr2","val2");
+
+        assertThat(e.getChildren().get(0).getChildren())
+                    .extracting("tagName","text","parent")
+                        .containsExactly(tuple("element2","value2",e.getChildren().get(0)),
+                                tuple("element3","value2",e.getChildren().get(0)));
+
+        assertThat(e.getChildren().get(0).getChildren().get(0).getAttributes())
+                    .containsEntry("attr3","val3")
+                    .containsEntry("attr4","val4");
+
+        assertThat(e.getChildren().get(0).getChildren().get(1).getAttributes())
+                    .containsEntry("attr5","val5")
+                    .containsEntry("attr6","val6");
+    }
 }

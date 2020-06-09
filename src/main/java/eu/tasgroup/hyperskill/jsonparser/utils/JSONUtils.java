@@ -5,6 +5,7 @@ import eu.tasgroup.hyperskill.jsonparser.model.JSONElement;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,12 +102,18 @@ public class JSONUtils {
         return jsonElement.getChildren().stream().anyMatch(child ->illegalInitialAndOnlyCharacter(child.getKey()));
     }
 
-    public static boolean hasNotEmptyChildren(JSONElement e) {
-        return e.getChildren().stream().anyMatch(child -> !hasNoChildren(child));
+    public static boolean atKeyElementHasNotEmptyChildren(JSONElement e) {
+        return e.getChildren().stream().anyMatch(child -> !hasNoChildren(child) && child.getKey().startsWith("@"));
     }
 
     public static boolean illegalInitialAndOnlyCharacter(String key) {
         return key.equals("@") || key.equals("#") || key.isEmpty(); //TENIAMO L'ISEMPTY() PER SALVARE L'OGGETTO XML CON KEY VUOTA O NO?
+    }
+
+    public static JSONElement getHashChild(JSONElement el){
+        Optional<JSONElement> nuccio= el.getChildren().stream().filter(child -> child.getKey().startsWith("#")).findFirst();
+
+        return nuccio.get();
     }
 
 }

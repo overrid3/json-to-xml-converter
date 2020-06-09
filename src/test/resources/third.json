@@ -1,0 +1,13 @@
+{
+  "transaction": {
+    "id": "6753322",
+    "number": {
+      "@region": "Russia",
+      "#number": "8-900-000-00-00"
+    },
+    "amount": null
+  },
+  "meta": {
+    "version": 0.01
+  }
+}
