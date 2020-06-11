@@ -86,7 +86,7 @@ public class JSONUtils {
 
     public static boolean hasExactlyOneChildWithHashKey(JSONElement jsonElement) {
 
-        List<JSONElement> l = jsonElement.getChildren().stream().filter(child -> child.getKey().startsWith("#")).collect(Collectors.toList());
+        List<JSONElement> l = jsonElement.getChildren().stream().filter(child -> child.getKey().startsWith("#")).collect(Collectors.toList()); //si può fare con anymatch()
 
         return l.size() == 1 && JSONUtils.getNormalizedKey(l.get(0).getKey()).equals(jsonElement.getKey());
     }

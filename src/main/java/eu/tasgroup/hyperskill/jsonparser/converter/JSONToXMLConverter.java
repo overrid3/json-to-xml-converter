@@ -25,19 +25,14 @@ public class JSONToXMLConverter {
             checkForText(xmlElement, jsonElement); //CONTROLLO SUL TEXT
             checkForAttributesToInsert(xmlElement, jsonElement); //CONTROLLO SUGLI ATTRIBUTI (VIENE ESEGUITO ANCHE SE NON CI SONO
 
-            JSONElement j=JSONUtils.getHashChild(jsonElement);
-            if (!JSONUtils.hasNoChildren(j)){
-                j.getChildren().stream().forEach(el -> xmlElement.addChild(convert(el)));
+            JSONElement j = JSONUtils.getHashChild(jsonElement);
+            if (!JSONUtils.hasNoChildren(j)) {
+                j.getChildren().forEach(el -> xmlElement.addChild(convert(el)));
             }
-            /*if (xmlElement.getText().isEmpty()){
-                jsonElement.getChildren().stream()
-                        .filter(child -> !JSONUtils.illegalInitialAndOnlyCharacter(child.getKey()))
-                        .forEach(child -> xmlElement.addChild(convert(child)));
-            }*/
         } else {
-            Set<JSONElement> set = checkForDuplicates(jsonElement);
+            Set<JSONElement> set = getDuplicates(jsonElement);
             if (!set.isEmpty()) {
-                jsonElement.getChildren().removeAll(set); //RIMUOVE GLI EVENTUALI DUPLICATI
+                jsonElement.getChildren().removeAll(set); //RIMUOVE GLI EVENTUALI DUPLICATI (CHIAVI CON CARATTERI SPECIALI)
             }
 
             jsonElement.getChildren().stream()
@@ -58,11 +53,10 @@ public class JSONToXMLConverter {
     //METODO PER VEDERE SE L'ELEMENTO CON CHIAVE #KEY NON HA VALORE NULLO
     private void checkForText(XMLElement xe, JSONElement je) {
 
-        Optional<JSONElement> optional = je.getChildren().stream().filter(child -> child.getKey().startsWith("#")).findFirst();
-
-        if (optional.get().getValue() != null) {
-            xe.setText(optional.get().getValue().toString());
-        }
+        je.getChildren().stream().filter(child -> child.getKey().startsWith("#")).findFirst()
+                .map(JSONElement::getValue)
+                .map(Object::toString)
+                .ifPresent(xe::setText);
     }
 
     private void checkForAttributesToInsert(XMLElement xmlElement, JSONElement jsonElement) { //VIENE ESEGUITO ANCHE SE I FIGLI CON LA CHIOCCIOLA NON CI SONO
@@ -78,14 +72,14 @@ public class JSONToXMLConverter {
     }
 
     //CONTROLLO TRA CHIAVI CON LO STESSO VALORE (TRA NORMALIZZATE E NORMALI)
-    private Set<JSONElement> checkForDuplicates(JSONElement jsonElement) {
+    private Set<JSONElement> getDuplicates(JSONElement jsonElement) {
 
         Set<JSONElement> set = new HashSet<>();
 
         jsonElement.getChildren().stream().filter(el -> (el.getKey().startsWith("@") || el.getKey().startsWith("#")))
                 .forEach(el -> {
                     for (JSONElement j : jsonElement.getChildren()) {
-                        if (JSONUtils.getNormalizedKey(el.getKey()).equals(j.getKey())) {
+                        if (Objects.equals(JSONUtils.getNormalizedKey(el.getKey()), j.getKey())) {
                             set.add(el);
                         }
                     }

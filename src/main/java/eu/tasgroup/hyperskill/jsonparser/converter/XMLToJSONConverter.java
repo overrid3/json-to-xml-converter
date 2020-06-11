@@ -29,36 +29,23 @@ public class XMLToJSONConverter {
 		jsonElement.setKey("\"" + e.getTagName() + "\"");
 
 		if (e.getAttributes().isEmpty()) {
-			
-			jsonElement.setValue(checkValue(e));
+			jsonElement.setValue(e.getText());
 		} else {
 			jsonElement.setValue("");
-			e.getAttributes().entrySet().stream().forEach(el -> jsonElement.addChild(new JSONElement(constructAttributeKey(el.getKey()), el.getValue())));
+			e.getAttributes().forEach((key, value) -> jsonElement.addChild(new JSONElement(constructAttributeKey(key), value)));
 
 			if(!XMLUtils.hasNoChildren(e)) {
 				JSONElement c = new JSONElement("\"#"+e.getTagName() + "\"","");
 				jsonElement.addChild(c);
-				e.getChildren().stream().forEach(child -> c.addChild(convertXML(child)));
+				e.getChildren().forEach(child -> c.addChild(convertXML(child)));
 			}else {
-				jsonElement.addChild(new JSONElement(constructTagString(e.getTagName()), checkValue(e)));
+				jsonElement.addChild(new JSONElement(constructTagString(e.getTagName()), e.getText()));
 			}
-			
 		}
 		if (!XMLUtils.hasNoChildren(e)) {
-			e.getChildren().stream().forEach(el -> jsonElement.addChild(convertXML(el)));
+			e.getChildren().forEach(el -> jsonElement.addChild(convertXML(el)));
 		}
 		return jsonElement;
-	}
-
-	private String checkValue(XMLElement e) {
-
-		if (e.getText() == null) {
-			 return null;
-		} else if (!e.getText().isEmpty()) {
-			return e.getText();
-		} 
-		return "";
-		
 	}
 
 	public String constructAttributeKey(String key){
